@@ -1,0 +1,5 @@
+node_modules
+.netlify
+.svelte-kit
+.env
+build
