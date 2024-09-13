@@ -25,6 +25,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"amplify-adapter": "^0.1.2",
 		"axios": "^1.6.8",
 		"contentful": "^10.11.10",
 		"moment": "^2.30.1",
