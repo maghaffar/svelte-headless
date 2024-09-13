@@ -1,13 +1,27 @@
 <script>
+	import { isQuickShopClosed } from './../stores/quickShop.js';
 	import { onMount } from 'svelte';
+	import QuickShop from '../components/QuickShop.svelte';
+	import { register } from 'swiper/element/bundle';
+	// register Swiper custom elements
+	register();
+
 	export let data;
 	const collections = data.edges;
 	const featuredImage = data.featuredImage;
+	const featuredImageMobile = data.featuredImageMobile;
+	console.log(featuredImageMobile);
 	const imageText = data.imageText;
 	const imageDescription = data.imageDescription;
-	const products = data.products?.slice(2, 6);
+	const formalCollectionProducts = data.formalCollectionProducts?.slice(2, 6);
+	const saleCollectionProducts = data.saleCollectionProducts?.slice(2, 6);
+	const kidsCollectionProducts = data.kidsCollectionProducts?.slice(1, 6);
 	const articles = data.articles?.length > 4 ? data.articles?.slice(0, 4) : data.articles;
-
+	$: isQuickShopClosedVal = true;
+	isQuickShopClosed.subscribe((value) => {
+		isQuickShopClosedVal = value;
+	});
+	$: quickShopProduct = null;
 	onMount(() => {
 		const flkty = new Flickity('.main-carousel', {
 			cellAlign: 'left',
@@ -21,9 +35,22 @@
 			arrows[i].style.height = '30px';
 		}
 	});
+	$: activeTabId = 0;
+	$: products =
+		activeTabId === 0
+			? formalCollectionProducts
+			: activeTabId === 1
+				? saleCollectionProducts
+				: kidsCollectionProducts;
 </script>
 
+<svelte:head>
+	<title>Home</title>
+	<link rel="preconnect" href="https://images.ctfassets.net" />
+</svelte:head>
+
 <div class="cover">
+	<img src={featuredImageMobile.url} alt="cover" class="coverImageMobile" />
 	<img src={featuredImage.url} alt="cover" class="coverImage" />
 	<div class="coverText">
 		<h2 class="imageText">{imageText}</h2>
@@ -37,50 +64,166 @@
 		<div class="collections">
 			{#if collections}
 				{#each collections as collection}
-					<div class="card">
-						<a href={`/collections/${collection.node.handle}`}>
-							<img
-								class="collectionImage"
-								src={`${collection.node.image?.url}&width=350`}
-								alt={collection.node.title}
-							/>
-						</a>
+					<a href={`/collections/${collection.node.handle}`} class="card">
+						<img
+							class="collectionImage"
+							src={`${collection.node.image?.url}&width=300`}
+							alt={collection.node.title}
+						/>
 						<div class="collectionTitle">
 							<p>{collection.node.title}</p>
 						</div>
-					</div>
+					</a>
 				{/each}
 			{/if}
 		</div>
 	</div>
 </div>
-<div class="container">
+<div class="ourFavSection">
 	<div class="featuredProducts">
-		<p class="featuredProductsTitle">Our Favorites</p>
+		<div class="bestSellersHeader">
+			<div class="headerTitle">
+				<h2>Our Favorites</h2>
+			</div>
+			<div class="collectionsDiv">
+				<div class="customTabs">
+					<button
+						on:click={() => (activeTabId = 0)}
+						class={activeTabId === 0 ? 'activeTab' : ''}
+						aria-label="Formal">Formal</button
+					>
+					<button
+						on:click={() => (activeTabId = 1)}
+						class={activeTabId === 1 ? 'activeTab' : ''}
+						aria-label="Sale">Sale</button
+					>
+					<button
+						on:click={() => (activeTabId = 2)}
+						class={activeTabId === 2 ? 'activeTab' : ''}
+						aria-label="Kids">Kids</button
+					>
+				</div>
+			</div>
+			<div class="shopAll">
+				<a href="/collections/men" class="shopAllLink {activeTabId === 0 ? '' : 'hidden'}"
+					>Shop All</a
+				>
+				<a href="/collections/sale" class="shopAllLink {activeTabId === 1 ? '' : 'hidden'}"
+					>Shop All</a
+				>
+				<a href="/collections/kid" class="shopAllLink {activeTabId === 2 ? '' : 'hidden'}"
+					>Shop All</a
+				>
+			</div>
+		</div>
 		<div class="products">
 			{#if products}
 				{#each products as product}
 					<a
 						data-sveltekit-preload-data="hover"
-						href={`/products/${product.node.handle}`}
+						href={`/products/${product.handle}`}
 						class="product"
+						on:click={(event) => {
+							if (
+								event.target.closest('.quickShopBtnDesktop') ||
+								event.target.closest('.quickShopBtnMobile')
+							) {
+								event.preventDefault();
+							}
+						}}
 					>
-						<img
-							src={`${product.node.featuredImage?.url}&width=400`}
-							alt="Product"
-							class="productImage primary"
-						/>
-						{#if product.node.media?.nodes?.length >= 2}
+						<div class="productImageContainer">
 							<img
-								src={`${product.node.media.nodes[1]?.previewImage.url}&width=400`}
+								src={`${product.featuredImage?.url}&width=300`}
 								alt="Product"
-								class="productImage secondary"
+								class="productImage primary"
+								width="350px"
+								height="425px"
 							/>
-						{/if}
-						<p class="productTitle">{product.node.title}</p>
+							{#if product.media?.nodes?.length >= 2}
+								<img
+									src={`${product.media.nodes[1]?.previewImage.url}&width=300`}
+									alt="Product"
+									class="productImage secondary"
+									width="350px"
+									height="425px"
+								/>
+							{/if}
+							<button
+								class="quickShopBtnDesktop"
+								on:click={() => {
+									isQuickShopClosed.set(false);
+									quickShopProduct = product;
+								}}
+								aria-label="Quick Shop"
+							>
+								QUICK SHOP
+							</button>
+							<button
+								class="quickShopBtnMobile"
+								on:click={() => {
+									isQuickShopClosed.set(false);
+									quickShopProduct = product;
+								}}
+								aria-label="Quick Shop"
+							>
+								<svg
+									id="Layer_2"
+									data-name="Layer 2"
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 53.41 55.72"
+								>
+									<defs>
+										<style>
+											.qshbtn {
+												fill: none;
+												stroke: #000;
+												stroke-miterlimit: 10;
+												stroke-width: 2.5px;
+											}
+										</style>
+									</defs>
+									<g id="Layer_1-2" data-name="Layer 1">
+										<g>
+											<path
+												class="qshbtn"
+												d="M14.33,20.24v-11.61c0-1.6.59-3.14,1.68-4.3,1.49-1.59,3.65-3.05,6.51-3.08,2.26-.02,4.94.21,7.54,3.23.97,1.12,1.49,2.59,1.49,4.09v11.67"
+											></path>
+											<g>
+												<path
+													class="qshbtn"
+													d="M28.55,40.93c.68-5.04,4.65-9.18,9.67-10.03,1.55-.26,3.06-.23,4.47.06-.14-4.14-.21-6.69-.41-9.1-.56-7.06-8-7.32-8-7.32H10.76c-7.69-.17-7.95,7.39-7.95,7.39,0,0-1.27,16.24-1.55,24.71.13,4.89,3.86,6.78,6.02,7.47.79.25,1.61.36,2.44.36,4.53,0,24.36-.03,30.59-.03.64.08-1.73-.02-1.22-.06-6.5-.66-11.45-6.59-10.53-13.45Z"
+												></path>
+												<path
+													class="qshbtn"
+													d="M39.08,54.37c.4.04.81.06,1.22.06,6.55,0,11.86-5.31,11.86-11.86,0-5.73-4.06-10.51-9.46-11.62"
+												></path>
+											</g>
+											<g>
+												<line class="qshbtn" x1="40.5" y1="36.47" x2="40.5" y2="48.52"></line>
+												<line class="qshbtn" x1="46.52" y1="42.5" x2="34.47" y2="42.5"></line>
+											</g>
+										</g>
+									</g>
+								</svg>
+							</button>
+						</div>
+						<p class="productTitle">{product.title}</p>
 					</a>
 				{/each}
 			{/if}
+			{#if !isQuickShopClosedVal}
+				<QuickShop product={quickShopProduct} />
+			{/if}
+		</div>
+		<div class="shopAllMobile">
+			<a href="/collections/men" class="shopAllLink {activeTabId === 0 ? '' : 'hidden'}">Shop All</a
+			>
+			<a href="/collections/sale" class="shopAllLink {activeTabId === 1 ? '' : 'hidden'}"
+				>Shop All</a
+			>
+			<a href="/collections/kid" class="shopAllLink {activeTabId === 2 ? '' : 'hidden'}">Shop All</a
+			>
 		</div>
 	</div>
 </div>
@@ -94,7 +237,7 @@
 			</div>
 		</div>
 		<div class="button">
-			<a href="/collections/all" class="buttonText">Shop Now</a>
+			<a href="/collections/all" class="buttonText" aria-label="Shop Now">Shop Now</a>
 		</div>
 	</div>
 	<div class="secondImage">
@@ -106,7 +249,7 @@
 			</div>
 		</div>
 		<div class="button">
-			<a href="/collections/all" class="buttonText">Shop Now</a>
+			<a href="/collections/all" class="buttonText" aria-label="Shop Now">Shop Now</a>
 		</div>
 	</div>
 </div>
@@ -114,10 +257,10 @@
 	<div class="articleContent">
 		<div class="upperContent">
 			<div>
-				<p>PF Mag</p>
+				<p>INS Mag</p>
 				<p>With new articles added weekly, there is always more to discover</p>
 			</div>
-			<a href="/blogs/all" class="seeMoreButton">Explore</a>
+			<a href="/blogs/news" class="seeMoreButton">Explore</a>
 		</div>
 		<div class="magArticlesDesktop">
 			<div class="lowerContent">
@@ -132,9 +275,10 @@
 						</div>
 						<div class="articleImage">
 							<img
-								src={`${articles[0]?.image?.url}&width=600`}
+								src={`${articles[0]?.image?.url}&width=350`}
 								alt={articles[0]?.title}
 								class="articleCardImage"
+								loading="lazy"
 							/>
 						</div>
 					</div>
@@ -148,9 +292,10 @@
 						</div>
 						<div class="articleImage">
 							<img
-								src={`${articles[1]?.image?.url}&width=600`}
+								src={`${articles[1]?.image?.url}&width=350`}
 								alt={articles[1]?.title}
 								class="articleCardImage"
+								loading="lazy"
 							/>
 						</div>
 					</div>
@@ -159,9 +304,10 @@
 					<div class="rightArticle">
 						<div class="rightArticleImage">
 							<img
-								src={`${articles[2]?.image?.url}&width=600`}
+								src={`${articles[2]?.image?.url}&width=400`}
 								alt={articles[2]?.title}
 								class="rightArticleCardImage"
+								loading="lazy"
 							/>
 						</div>
 						<div class="rightArticleText">
@@ -184,9 +330,10 @@
 					>
 						<div class="mobileArticleImage">
 							<img
-								src={`${articles[0]?.image?.url}&width=600`}
+								src={`${articles[0]?.image?.url}&width=400`}
 								alt={articles[0]?.title}
 								class="img"
+								loading="lazy"
 							/>
 						</div>
 						<div class="mobileArticleContent">
@@ -205,9 +352,10 @@
 					>
 						<div class="mobileArticleImage">
 							<img
-								src={`${articles[1]?.image?.url}&width=600`}
+								src={`${articles[1]?.image?.url}&width=400`}
 								alt={articles[1]?.title}
 								class="img"
+								loading="lazy"
 							/>
 						</div>
 						<div class="mobileArticleContent">
@@ -226,9 +374,10 @@
 					>
 						<div class="mobileArticleImage">
 							<img
-								src={`${articles[2]?.image?.url}&width=600`}
+								src={`${articles[2]?.image?.url}&width=400`}
 								alt={articles[2]?.title}
 								class="img"
+								loading="lazy"
 							/>
 						</div>
 						<div class="mobileArticleContent">
@@ -246,7 +395,7 @@
 </div>
 
 <style>
-	.container {
+	.ourFavSection {
 		max-width: 1440px;
 		margin: 0 auto;
 	}
@@ -259,6 +408,11 @@
 		aspect-ratio: 8 /4;
 		object-fit: cover;
 		max-height: 650px;
+	}
+	.coverImageMobile {
+		display: none;
+		object-fit: cover;
+		max-height: 230px;
 	}
 	.coverText {
 		position: absolute;
@@ -309,6 +463,7 @@
 		justify-content: space-between;
 		align-items: center;
 		color: black;
+		text-decoration: none;
 	}
 	.collections {
 		display: flex;
@@ -342,19 +497,72 @@
 		color: black;
 		padding: 10px;
 		overflow: hidden;
+		position: relative;
+	}
+	.productImageContainer {
+		position: relative;
+		width: 350px;
+		height: 425px;
 	}
 	.productImage {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		height: 100%;
 		aspect-ratio: 4 / 5;
-		object-fit: cover;
+		object-fit: contain;
+		transition: opacity 0.8s ease-in-out;
 	}
-	.secondary {
+	.productImage.primary {
+		visibility: visible;
+		opacity: 1;
+	}
+	.productImage.secondary {
+		visibility: hidden;
+		opacity: 0;
+	}
+	.product:hover .productImage.primary {
+		opacity: 0;
+		visibility: hidden;
+	}
+	.product:hover .productImage.secondary {
+		opacity: 1;
+		visibility: visible;
+	}
+	.quickShopBtnDesktop {
+		font-family: 'Poppins';
+		position: absolute;
+		bottom: -2px;
+		width: 100%;
+		border: none;
+		height: 40px;
+		background-color: #f9f5ef;
+		padding: 0;
+		opacity: 0;
+		transition: bottom 0.5s linear;
+		text-transform: uppercase;
+		font-size: 16px;
+	}
+	.quickShopBtnMobile {
+		cursor: pointer;
 		display: none;
+		position: absolute;
+		bottom: 3px;
+		right: 35px;
+		width: 36px;
+		height: 36px;
+		border-radius: 50%;
+		border: none;
+		padding: 6px;
+		background-color: #f9f5ef;
 	}
-	.product:hover .primary {
-		display: none;
-	}
-	.product:hover .secondary {
-		display: block;
+	.quickShopBtnMobile svg {
+		padding-left: 2px;
+		width: 24px;
+		height: 24px;
 	}
 	.productTitle {
 		font-size: 13px;
@@ -382,6 +590,7 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		display: -webkit-box;
+		line-clamp: 3;
 		-webkit-line-clamp: 3;
 		-webkit-box-orient: vertical;
 		font-size: 14px;
@@ -411,7 +620,7 @@
 		flex-wrap: wrap;
 	}
 	.firstImage {
-		background-image: url('/bg-1.jpg');
+		background-image: url('/bg-1.webp');
 		background-size: cover;
 		min-height: 650px;
 		width: 49.5%;
@@ -420,7 +629,7 @@
 		position: relative;
 	}
 	.secondImage {
-		background-image: url('/bg-2.jpg');
+		background-image: url('/bg-2.webp');
 		background-size: cover;
 		min-height: 650px;
 		width: 49.5%;
@@ -492,7 +701,7 @@
 	.articlesBanner {
 		width: 100%;
 		height: 900px;
-		background-image: url('/blog-bg.jpg');
+		background-image: url('/blog-bg.webp');
 	}
 	.articleContent {
 		max-width: 1440px;
@@ -593,18 +802,70 @@
 		padding: 20px;
 	}
 	.featuredProducts {
-		margin-top: 40px;
-	}
-
-	.featuredProductsTitle {
-		font-size: 35px;
-		color: #373735;
-		display: flex;
-		justify-content: start;
+		max-width: 1300px;
 		margin: 0 auto;
-		width: 83%;
+		padding: 80px 0 40px;
 	}
 
+	.bestSellersHeader {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding-bottom: 20px;
+		margin: 0 15px;
+	}
+	.headerTitle {
+		width: 25%;
+	}
+	.headerTitle h2 {
+		font-size: 35px;
+		line-height: 49px;
+		margin: 0;
+		font-family: Poppins;
+		font-weight: normal;
+	}
+	.collectionsDiv {
+		width: 55%;
+		text-align: center;
+	}
+	.customTabs button {
+		background: none;
+		line-height: 22px;
+		font-size: 15px;
+		text-transform: capitalize;
+		padding: 10px;
+		margin-right: 30px;
+		min-width: 137px;
+		min-height: 41px;
+		border: 1px solid transparent;
+		font-family: 'Poppins';
+		cursor: pointer;
+	}
+	.activeTab {
+		background: #245490 !important;
+		color: #fff;
+		padding: 10px;
+	}
+	.hidden {
+		display: none;
+	}
+	.shopAll {
+		width: 20%;
+		text-align: right;
+	}
+	.shopAllMobile {
+		display: none;
+	}
+	.shopAllLink {
+		font-size: 13px;
+		line-height: 20px;
+		font-weight: 600;
+		text-transform: uppercase;
+		border-bottom: 2px solid;
+		text-decoration: none;
+		color: #000;
+		font-family: Poppins;
+	}
 	.link {
 		text-decoration: underline;
 		font-weight: 600;
@@ -646,6 +907,7 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		display: -webkit-box;
+		line-clamp: 3;
 		-webkit-line-clamp: 3;
 		-webkit-box-orient: vertical;
 		font-size: 14px;
@@ -698,9 +960,6 @@
 			height: 45px;
 			max-width: 140px;
 		}
-		.featuredProductsTitle {
-			width: 85%;
-		}
 	}
 
 	@media (min-width: 768px) {
@@ -716,6 +975,11 @@
 		}
 		.card:hover {
 			margin-top: 20px;
+		}
+		.product:hover .quickShopBtnDesktop {
+			bottom: 0px;
+			opacity: 1;
+			cursor: pointer;
 		}
 	}
 
@@ -774,10 +1038,41 @@
 		.coverText {
 			left: 34%;
 		}
-		.featuredProductsTitle {
+		.quickShopBtnDesktop {
+			display: none;
+		}
+		.quickShopBtnMobile {
+			display: block;
+		}
+		.bestSellersHeader {
+			flex-direction: column;
+		}
+		.headerTitle {
 			width: 100%;
+			text-align: center;
+			margin-bottom: 15px;
+		}
+		.shopAll {
+			display: none;
+		}
+		.shopAllMobile {
+			display: flex;
 			justify-content: center;
-			margin-bottom: 40px;
+		}
+		.collectionsDiv {
+			display: flex;
+			justify-content: center;
+			width: 100%;
+			padding: 0;
+		}
+		.collectionsDiv button {
+			background-color: #f9e6e6;
+			margin: 0 12px 0 0;
+			min-height: unset;
+			min-width: unset;
+		}
+		.collectionsDiv button:hover {
+			background-color: #fff5f5;
 		}
 	}
 	@media screen and (min-width: 400px) and (max-width: 500px) {
@@ -786,8 +1081,11 @@
 		}
 	}
 	@media (max-width: 500px) {
-		.products {
-			gap: 0;
+		.coverImage {
+			display: none;
+		}
+		.coverImageMobile {
+			display: block;
 		}
 		.product {
 			width: 45%;
@@ -842,15 +1140,48 @@
 			margin-bottom: 25px;
 			font-size: 25px;
 		}
-		.featuredProductsTitle {
-			font-size: 25px;
-			margin-bottom: 20px;
-		}
 		.collectionTitle p {
 			margin: 0;
 		}
 		.collections {
 			gap: 10px;
+		}
+		.productImageContainer {
+			padding-top: 145%;
+			width: 200px;
+			height: 250px;
+		}
+		.quickShopBtnMobile {
+			bottom: 2px;
+			right: 18px;
+		}
+		.featuredCollectionsBackground {
+			width: 100%;
+			height: 530px;
+		}
+		.featuredCollections {
+			width: 100%;
+			height: 530px;
+		}
+		.featuredProducts {
+			width: 100%;
+			height: 900px;
+		}
+		.ourFavSection {
+			width: 100%;
+			height: 900px;
+		}
+		.ourFavSection .products {
+			width: 100%;
+			height: 630px;
+		}
+		.bgImagesWithText {
+			width: 100%;
+			height: 1110px;
+		}
+		.articlesBanner {
+			width: 100%;
+			height: 900px;
 		}
 	}
 	@media (max-width: 400px) {
@@ -861,6 +1192,9 @@
 			max-width: 60px;
 			height: 20px;
 			font-size: 8px;
+		}
+		.quickShopBtnMobile {
+			right: 17px;
 		}
 	}
 </style>

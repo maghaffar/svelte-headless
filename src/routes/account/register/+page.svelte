@@ -3,6 +3,10 @@
 	export let form;
 </script>
 
+<svelte:head>
+	<title>Sign Up</title>
+</svelte:head>
+
 <div class="main">
 	<div class="signinImageDiv">
 		<h2>Join The Printfresh Dream Team & Keep Tracking of All The Items You Love</h2>
@@ -31,7 +35,7 @@
 					</div>
 					<input type="email" name="email" placeholder="Email" />
 					<input type="password" name="password" placeholder="Password" />
-					<button type="submit" class="btnSubmit">SIGN UP</button>
+					<button type="submit" class="btnSubmit" aria-label="Sign Up">SIGN UP</button>
 				</form>
 			</div>
 		</div>

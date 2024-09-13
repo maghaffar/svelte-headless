@@ -17,13 +17,13 @@
 	$: collections = [];
 	$: query = '';
 	let timeout;
-	const popularSearches = ['wedding dress', 'floral', 'beach dress', 'night dress'];
+	const popularSearches = ['red dress', 'shirt', 'striped peplum', 'night dress'];
 
 	async function searchProducts() {
 		clearTimeout(timeout);
 		if (query.length > 0) {
 			timeout = setTimeout(async () => {
-				const res = await fetch('../api/search', {
+				const res = await fetch('/api/search', {
 					method: 'POST',
 					body: JSON.stringify({
 						query
@@ -79,7 +79,7 @@
 	}
 
 	async function remove() {
-		const res = await fetch('../api/removeLines', {
+		const res = await fetch('/api/removeLines', {
 			method: 'POST',
 			body: JSON.stringify({
 				lineIds
@@ -138,7 +138,7 @@
 	}
 
 	async function applyDiscount() {
-		const res = await fetch('../api/discount', {
+		const res = await fetch('/api/discount', {
 			method: 'POST',
 			body: JSON.stringify({
 				cartId,
@@ -167,7 +167,7 @@
 	}
 
 	async function removeDiscount() {
-		const res = await fetch('../api/discount', {
+		const res = await fetch('/api/discount', {
 			method: 'POST',
 			body: JSON.stringify({
 				cartId,
@@ -183,7 +183,7 @@
 		}
 	}
 	async function addNote() {
-		const res = await fetch('../api/cartNote', {
+		const res = await fetch('/api/cartNote', {
 			method: 'POST',
 			body: JSON.stringify({
 				cartId,
@@ -270,7 +270,7 @@
 
 										<!-- SEARCH SVG -->
 										<div class="inputGroupAppend">
-											<button class="btn" type="submit">
+											<button class="btn" type="submit" aria-label="search">
 												<span>
 													<svg
 														style="width: 18px; height: 18px;"
@@ -393,6 +393,7 @@
 								const sidebar = document.querySelector('.sidebar');
 								sidebar.style.left = '-100%';
 							}}
+							aria-label="Close Sidebar"
 							><svg
 								xmlns="http://www.w3.org/2000/svg"
 								x="0px"
@@ -423,6 +424,7 @@
 								<button
 									class="btn btn-outline-dark bg-transparent border-0 h-auto py-2 px-0"
 									type="submit"
+									aria-label="Search"
 								>
 									<svg class="d-block" stroke="currentColor" fill="none" height="20" width="20">
 										<title> Search </title>
@@ -447,6 +449,7 @@
 										on:click={() => {
 											openIndex = i;
 										}}
+										aria-label="Open Sub Menu"
 										style="display: {openIndex === i ? 'none' : 'inline-block'}"
 									>
 										+
@@ -456,12 +459,13 @@
 										on:click={() => {
 											openIndex = -1;
 										}}
+										aria-label="Close Sub Menu"
 										style="display: {openIndex === i ? 'inline-block' : 'none'}"
 									>
 										-
 									</button>
 								</div>
-								<div class="subMenu" style="display: {openIndex === i ? 'block' : 'none'}">
+								<div class="subMenu {openIndex === i ? 'active' : ''}">
 									<div class="subMenuContent">
 										{#each item.columns as column, i}
 											<div class="subMenuCol">
@@ -470,9 +474,23 @@
 												</h6>
 												{#each column.fields as field}
 													{#if field.heading}
-														<a class="megaSubMenuItem link" href={field.url}>{field.heading}</a>
+														<a
+															class="megaSubMenuItem link"
+															href={field.url}
+															on:click={() => {
+																const sidebar = document.querySelector('.sidebar');
+																sidebar.style.left = '-100%';
+															}}>{field.heading}</a
+														>
 													{:else if field.productImage}
-														<a class="megaSubMenuItem" href="/collections/all">
+														<a
+															class="megaSubMenuItem"
+															href="/collections/all"
+															on:click={() => {
+																const sidebar = document.querySelector('.sidebar');
+																sidebar.style.left = '-100%';
+															}}
+														>
 															<img
 																class="subMenuImage"
 																src={`https:${field.productImage.fields.file.url}`}
@@ -481,9 +499,16 @@
 															/>
 														</a>
 														<div>
-															<a href="/collections/all" target="_blank" class="link"
-																>{field.productTitle}</a
+															<a
+																href="/collections/all"
+																class="link"
+																on:click={() => {
+																	const sidebar = document.querySelector('.sidebar');
+																	sidebar.style.left = '-100%';
+																}}
 															>
+																{field.productTitle}
+															</a>
 														</div>
 													{:else if field.swatchImage}
 														<div class="swatch">
@@ -493,8 +518,16 @@
 																width="40px"
 																height="40px"
 																class="swatchImage"
+																loading="lazy"
 															/>
-															<a href="/collections/all" target="_blank" class="link">
+															<a
+																href="/collections/all"
+																class="link"
+																on:click={() => {
+																	const sidebar = document.querySelector('.sidebar');
+																	sidebar.style.left = '-100%';
+																}}
+															>
 																<p>{field.title}</p>
 															</a>
 														</div>
@@ -506,14 +539,16 @@
 								</div>
 							</li>
 						{/each}
-						<a
-							href="/account"
-							class="mobileNavBarLink"
-							on:click={() => {
-								const sidebar = document.querySelector('.sidebar');
-								sidebar.style.left = '-100%';
-							}}>ACCOUNT</a
-						>
+						<li>
+							<a
+								href="/account"
+								class="mobileNavBarLink"
+								on:click={() => {
+									const sidebar = document.querySelector('.sidebar');
+									sidebar.style.left = '-100%';
+								}}>ACCOUNT</a
+							>
+						</li>
 					</ul>
 				</div>
 			</div>
@@ -522,44 +557,22 @@
 					on:click={() => {
 						const sidebar = document.querySelector('.sidebar');
 						sidebar.style.left = '0';
-					}}><img src="/hamburger.svg" alt="Menu" width="50px" height="50px" /></button
+					}}
+					aria-label="Menu"
+					><img src="/hamburger.svg" alt="Menu" width="50px" height="50px" /></button
 				>
 			</div>
 			<div class="logo">
-				{#if browser && window.innerWidth < 600 && !scrolled}
-					<a href="/"
-						><img
-							src="/ins.png"
-							alt="Cat"
-							height="200px"
-							width="200px"
-							class="ins"
-							transition:fade={{ duration: 300 }}
-						/></a
-					>
-				{/if}
-				{#if browser && window.innerWidth < 600 && scrolled}
-					<a href="/"
-						><img
-							src="/intangible.png"
-							alt="Cat"
-							class="intangible"
-							transition:fade={{ duration: 300 }}
-						/></a
-					>
-				{/if}
-				{#if browser && window.innerWidth >= 600}
-					<a href="/"
-						><img
-							src="/ins.png"
-							alt="Cat"
-							height="200px"
-							width="200px"
-							class="ins"
-							transition:fade={{ duration: 300 }}
-						/></a
-					>
-				{/if}
+				<a href="/"
+					><img
+						src="/ins.webp"
+						alt="Cat"
+						height="200px"
+						width="200px"
+						class="ins"
+						transition:fade={{ duration: 300 }}
+					/></a
+				>
 			</div>
 			<div class={`cart ${scrolled ? 'marginTop' : ''}`}>
 				<div class="input-group">
@@ -573,7 +586,7 @@
 						}}
 						on:input={searchProducts}
 					/>
-					<button
+					<button aria-label="Search"
 						><svg
 							style="width: 22px; height: 24px;"
 							width="30"
@@ -590,7 +603,7 @@
 						</svg></button
 					>
 				</div>
-				<a href="/account/login" class="signin">
+				<a href="/account/login" class="signin" aria-label="Sign In">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="22"
@@ -612,6 +625,7 @@
 						const cartDrawer = document.querySelector('.cartDrawer');
 						cartDrawer.style.right = '0';
 					}}
+					aria-label="Cart"
 				>
 					<svg
 						style="width: 25px; height: 25px;"
@@ -738,6 +752,7 @@
 								const cartDrawer = document.querySelector('.cartDrawer');
 								cartDrawer.style.right = '-200%';
 							}}
+							aria-label="Close Cart"
 							><svg
 								xmlns="http://www.w3.org/2000/svg"
 								x="0px"
@@ -805,6 +820,7 @@
 														lineIds[0] = item.node.id;
 														remove();
 													}}
+													aria-label="Delete Product"
 													><svg
 														xmlns="http://www.w3.org/2000/svg"
 														x="0px"
@@ -850,7 +866,8 @@
 														quantity = item.node.quantity;
 														lineIds[0] = item.node.id;
 														handleDecrement();
-													}}>-</button
+													}}
+													aria-label="Decrement Quantity">-</button
 												>
 												<p class="quantityValue">{item.node.quantity}</p>
 												<button
@@ -860,7 +877,8 @@
 														id = item.node.id;
 														quantity = item.node.quantity;
 														handleIncrement();
-													}}>+</button
+													}}
+													aria-label="Increment Quantity">+</button
 												>
 											</div>
 										</div>
@@ -878,8 +896,11 @@
 							<div class="noteMain">
 								<div class="note">
 									<input type="text" placeholder="Enter Note" bind:value={note} />
-									<button on:click={addNote} class="addNote" disabled={note == '' ? true : false}
-										>Add Note</button
+									<button
+										on:click={addNote}
+										class="addNote"
+										aria-label="Add Note"
+										disabled={note == '' ? true : false}>Add Note</button
 									>
 								</div>
 							</div>
@@ -888,7 +909,8 @@
 								<button
 									on:click={applyDiscount}
 									class="applyDiscount"
-									disabled={code == '' ? true : false}>Apply</button
+									disabled={code == '' ? true : false}
+									aria-label="Apply Discount">Apply</button
 								>
 							</div>
 							<div class="appliedCodes">
@@ -918,13 +940,13 @@
 										{/if}
 										<span class="subTotal"
 											>${discountedAmount > 0
-												? cart?.cost?.subtotalAmount.amount - discountedAmount
+												? (cart?.cost?.subtotalAmount.amount - discountedAmount).toFixed(1)
 												: cart?.cost?.subtotalAmount.amount}</span
 										>
 									</div>
 								</div>
 								<div class="cartButtons">
-									<button class="shopButton"
+									<button class="shopButton" aria-label="Continue Shopping"
 										><svg
 											width="92"
 											height="22"
@@ -1088,9 +1110,7 @@
 														/>
 													</a>
 													<div>
-														<a href="/collections/all" target="_blank" class="link"
-															>{field.productTitle}</a
-														>
+														<a href="/collections/all" class="link">{field.productTitle}</a>
 													</div>
 												{:else if field.swatchImage}
 													<div class="swatch">
@@ -1100,8 +1120,9 @@
 															width="40px"
 															height="40px"
 															class="swatchImage"
+															loading="lazy"
 														/>
-														<a href="/collections/all" target="_blank" class="link">
+														<a href="/collections/all" class="link">
 															<p>{field.title}</p>
 														</a>
 													</div>
@@ -1129,7 +1150,7 @@
 					<p class="signup-text">Sign up for our email list to unlock 15% off your first order.</p>
 					<form>
 						<input type="email" name="email" />
-						<button type="submit">JOIN</button>
+						<button type="submit" aria-label="Subscribe">JOIN</button>
 					</form>
 				</div>
 				<div class="column">
@@ -1169,6 +1190,7 @@
 						href="https://www.linkedin.com/company/intangible-solutions"
 						target="_blank"
 						rel="nofollow"
+						aria-label="LinkedIn"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -1194,6 +1216,7 @@
 						href="https://www.linkedin.com/company/intangible-solutions"
 						target="_blank"
 						rel="nofollow"
+						aria-label="facebook"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -1212,6 +1235,7 @@
 						href="https://www.linkedin.com/company/intangible-solutions"
 						target="_blank"
 						rel="nofollow"
+						aria-label="pinterest"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -1239,6 +1263,7 @@
 						href="https://www.linkedin.com/company/intangible-solutions"
 						target="_blank"
 						rel="nofollow"
+						aria-label="tiktok"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -1259,7 +1284,7 @@
 			</div>
 			<div class="row-3">
 				<div class="logo-copy">
-					<img src="/ins.png" alt="PRINTFRESH" height="200px" width="200px" />
+					<img src="/ins.webp" alt="INS" height="200px" width="200px" />
 					<p>© 2024 Intangible Solutions</p>
 				</div>
 			</div>
@@ -1276,7 +1301,7 @@
 							<div class="inputGroupMobile">
 								<input type="email" title="Email" class="formControlMobile" />
 								<div class="inputGroupAppend">
-									<button type="submit" class="btnSubmitMobile">JOIN</button>
+									<button type="submit" class="btnSubmitMobile" aria-label="Join">JOIN</button>
 								</div>
 							</div>
 						</div>
@@ -1289,7 +1314,7 @@
 						on:click={() => (isActive1 = !isActive1)}
 					>
 						<div class="footerMenuColCenter">
-							<button class="footerMenuHeader"> SUPPORT </button>
+							<button class="footerMenuHeader" aria-label="Support"> SUPPORT </button>
 							<div class="footerMenuContent">
 								<p>Contact Us</p>
 								<p>Order Tracking</p>
@@ -1310,7 +1335,7 @@
 						on:click={() => (isActive2 = !isActive2)}
 					>
 						<div class="footerMenuColCenter">
-							<button class="footerMenuHeader"> COMPANY </button>
+							<button class="footerMenuHeader" aria-label="Company"> COMPANY </button>
 							<div class="footerMenuContent">
 								<p>Our Story</p>
 								<p>Sustainability</p>
@@ -1329,7 +1354,7 @@
 						on:click={() => (isActive3 = !isActive3)}
 					>
 						<div class="footerMenuColCenter">
-							<button class="footerMenuHeader"> SHOP </button>
+							<button class="footerMenuHeader" aria-label="Shop"> SHOP </button>
 							<div class="footerMenuContent">
 								<p>Dream Team Reward Program</p>
 								<p>Download Our App</p>
@@ -1347,6 +1372,7 @@
 								href="https://www.linkedin.com/company/intangible-solutions"
 								target="_blank"
 								rel="nofollow"
+								aria-label="LinkedIn"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -1372,6 +1398,7 @@
 								href="https://www.linkedin.com/company/intangible-solutions"
 								target="_blank"
 								rel="nofollow"
+								aria-label="facebook"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -1390,6 +1417,7 @@
 								href="https://www.linkedin.com/company/intangible-solutions"
 								target="_blank"
 								rel="nofollow"
+								aria-label="pinterest"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -1417,6 +1445,7 @@
 								href="https://www.linkedin.com/company/intangible-solutions"
 								target="_blank"
 								rel="nofollow"
+								aria-label="twitter"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -1437,7 +1466,7 @@
 					</div>
 					<div class="socialIcons">
 						<div class="logo-copy">
-							<img src="/ins.png" alt="PRINTFRESH" height="200px" width="200px" />
+							<img src="/ins.webp" alt="INS" height="200px" width="200px" />
 							<p>© 2024 Intangible Solutions</p>
 						</div>
 					</div>
@@ -1566,6 +1595,7 @@
 		min-width: 100%;
 		box-shadow: 0 8px 16px #0003;
 		z-index: 999999;
+		transition: all 0.5s ease-in-out;
 	}
 
 	.megaMenu:hover .megaMenuDropDown {
@@ -2596,14 +2626,28 @@
 	.close svg {
 		cursor: pointer;
 	}
+	.mobileNavBarItem {
+		position: relative;
+	}
 	.subMenu {
-		display: none;
-		position: static;
-		float: none;
-		margin: 0;
-		padding: 0;
+		position: absolute;
+		display: block;
+		top: 100%;
+		left: 0;
+		right: 0;
+		border-top: 0;
 		background: #f9f5ef;
-		width: 100%;
+		transition: all 0.5s;
+		z-index: -1;
+		opacity: 0;
+		visibility: hidden;
+		pointer-events: none;
+	}
+	.active {
+		opacity: 1;
+		visibility: visible;
+		pointer-events: all;
+		z-index: 2;
 	}
 	.subMenuContent {
 		display: flex;
@@ -2745,6 +2789,9 @@
 		.searchResultsMainMobile .searchProductCard {
 			width: 35%;
 		}
+		.scrolled {
+			top: -87px;
+		}
 	}
 	@media screen and (max-width: 700px) {
 		.searchResultsMainMobile {
@@ -2837,6 +2884,9 @@
 	@media screen and (max-width: 480px) {
 		.searchResultsMainMobile .searchResults .searchProductCard {
 			width: 35%;
+		}
+		.footerDiv {
+			height: 615px;
 		}
 	}
 	@media screen and (max-width: 380px) {

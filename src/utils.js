@@ -4,22 +4,37 @@ import { PUBLIC_STOREFRONT_API_TOKEN } from '$env/static/public';
 export async function getProducts() {
 	const query = ` {
 		products(first: 50) {
-		  edges {
-			node {
-			  id
-			  title
-			  featuredImage{
+			nodes {
+			 id
+		  title
+		  description
+		  handle
+		  featuredImage{
+			url
+		  }
+		  media(first:5) {
+			nodes {
+			  previewImage {
 				url
 			  }
-			  handle
-			   priceRange{
+			}
+		  }
+		  vendor
+		  priceRange{
 			maxVariantPrice{
 			  amount
+			}
+		  }
+		  variants(first:5){
+			nodes{
+			  id
+			  title
+			  availableForSale
+			  selectedOptions{
+				name
+				value
 			  }
-		    }
-			  media(first:5) {
-			  nodes {
-			  previewImage {
+			  image{
 				url
 			  }
 			}
@@ -27,7 +42,7 @@ export async function getProducts() {
 			  }
 		  }
 	  }
-  }`;
+  `;
 
 	const data = JSON.stringify({
 		query
@@ -52,6 +67,75 @@ export async function getProducts() {
 	}
 }
 
+export async function getSortedProducts(sortKey, reverse) {
+	const query = `query getSortedProducts($sortKey: ProductSortKeys!, $reverse: Boolean) {
+		products(first: 50, sortKey: $sortKey, reverse: $reverse) {
+			nodes {
+			 id
+		  title
+		  description
+		  handle
+		  featuredImage{
+			url
+		  }
+		  media(first:5) {
+			nodes {
+			  previewImage {
+				url
+			  }
+			}
+		  }
+		  vendor
+		  priceRange{
+			maxVariantPrice{
+			  amount
+			}
+		  }
+		  variants(first:5){
+			nodes{
+			  id
+			  title
+			  availableForSale
+			  selectedOptions{
+				name
+				value
+			  }
+			  image{
+				url
+			  }
+			}
+		  }
+			  }
+		  }
+	  }`;
+
+	const variables = {
+		sortKey,
+		reverse
+	};
+	const data = JSON.stringify({
+		query,
+		variables
+	});
+
+	const config = {
+		method: 'POST',
+		url: 'https://ag-ins-test-store.myshopify.com/api/2024-01/graphql.json',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-Shopify-Storefront-Access-Token': PUBLIC_STOREFRONT_API_TOKEN,
+			Connection: 'keep-alive'
+		},
+		data
+	};
+
+	try {
+		const res = await axios.request(config);
+		return res.data;
+	} catch (error) {
+		console.error(error);
+	}
+}
 export async function getProduct(handle) {
 	const query = ` query getProductByHandle($handle: String) {
 		product(handle: $handle) {
@@ -578,7 +662,79 @@ export async function getCollectionProducts(handle) {
 	const query = `query getCollectionProducts($handle: String) {
 		collection(handle: $handle) {
 		  title
-		  products(first: 10) {
+		  products(first: 30) {
+			nodes {
+			  id
+			  handle
+			  description
+			  title
+			  vendor
+			  priceRange {
+				maxVariantPrice {
+				  amount
+				}
+			  }
+			  media(first: 5) {
+				nodes {
+				  previewImage {
+					url
+				  }
+				}
+			  }
+			  variants(first: 5) {
+				nodes {
+				  id
+				  title
+				  availableForSale
+				  selectedOptions {
+					name
+					value
+				  }
+				  image {
+					url
+				  }
+				}
+			  }
+			  featuredImage {
+				url
+			  }
+			}
+		  }
+		}
+	  }
+	  `;
+	const variables = {
+		handle
+	};
+	const data = JSON.stringify({
+		query,
+		variables
+	});
+	const config = {
+		method: 'POST',
+		url: 'https://ag-ins-test-store.myshopify.com/api/2024-01/graphql.json',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-Shopify-Storefront-Access-Token': PUBLIC_STOREFRONT_API_TOKEN,
+			Connection: 'keep-alive'
+		},
+		data
+	};
+
+	try {
+		const res = await axios.request(config);
+
+		return res.data;
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+export async function getSortedCollectionProducts(handle, sortKey, reverse) {
+	const query = `query getCollectionProducts($handle: String, $sortKey: ProductCollectionSortKeys!, $reverse: Boolean) {
+		collection(handle: $handle) {
+		  title
+		  products(first: 30, sortKey: $sortKey, reverse: $reverse) {
 			nodes {
 			  id
 			  handle
@@ -619,7 +775,9 @@ export async function getCollectionProducts(handle) {
 	  }
 	  `;
 	const variables = {
-		handle
+		handle,
+		sortKey,
+		reverse
 	};
 	const data = JSON.stringify({
 		query,
@@ -638,7 +796,6 @@ export async function getCollectionProducts(handle) {
 
 	try {
 		const res = await axios.request(config);
-
 		return res.data;
 	} catch (error) {
 		console.error(error);
@@ -695,6 +852,78 @@ export async function getBlogs() {
 	}
 }
 
+export async function getBlogsList() {
+	const query = `query {
+		blogs(first: 10) {
+			nodes {
+			  handle
+			  title
+			}
+		  }
+	}
+	  `;
+	const data = JSON.stringify({
+		query
+	});
+	const config = {
+		method: 'POST',
+		url: 'https://ag-ins-test-store.myshopify.com/api/2024-01/graphql.json',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-Shopify-Storefront-Access-Token': PUBLIC_STOREFRONT_API_TOKEN,
+			Connection: 'keep-alive'
+		},
+		data
+	};
+
+	try {
+		const res = await axios.request(config);
+
+		return res.data;
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+export async function getPopularArticles() {
+	const query = `query {
+		articles(first: 10) {
+			nodes {
+			  handle
+			  title
+			  image {
+				  url
+				}
+			   blog{
+        		handle
+				title
+     			 }
+			}
+		  }
+	}
+	  `;
+	const data = JSON.stringify({
+		query
+	});
+	const config = {
+		method: 'POST',
+		url: 'https://ag-ins-test-store.myshopify.com/api/2024-01/graphql.json',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-Shopify-Storefront-Access-Token': PUBLIC_STOREFRONT_API_TOKEN,
+			Connection: 'keep-alive'
+		},
+		data
+	};
+
+	try {
+		const res = await axios.request(config);
+
+		return res.data;
+	} catch (error) {
+		console.error(error);
+	}
+}
 export async function getBlog(handle) {
 	const query = `query getBlog($handle: String) {
 		blog(handle: $handle) {
@@ -710,11 +939,17 @@ export async function getBlog(handle) {
 				handle
 				id
 				title
+				authorV2 {
+        			name
+      			}
+				excerptHtml
 				blog {
 				  title
 				  handle
 				}
 				excerpt
+				excerptHtml
+				publishedAt
 				content
 				contentHtml
 				image {
@@ -966,21 +1201,45 @@ export async function getCollectionProductsById(id) {
 		collection(id: $id) {
 		  title
 		  products(first: 10) {
+				nodes {
+			 id
+		  title
+		  description
+		  handle
+		  featuredImage{
+			url
+		  }
+		  media(first:5) {
 			nodes {
-			  handle
-			  title
-			  priceRange {
-				maxVariantPrice {
-				  amount
-				}
-			  }
-			  featuredImage {
+			  previewImage {
 				url
 			  }
 			}
 		  }
-		}
-	  }
+		  vendor
+		  priceRange{
+			maxVariantPrice{
+			  amount
+			}
+		  }
+		  variants(first:5){
+			nodes{
+			  id
+			  title
+			  availableForSale
+			  selectedOptions{
+				name
+				value
+			  }
+			  image{
+				url
+			  }
+			}
+		  }
+			}
+			}
+		  }
+}
 	  `;
 	const variables = {
 		id
@@ -1002,7 +1261,6 @@ export async function getCollectionProductsById(id) {
 
 	try {
 		const res = await axios.request(config);
-
 		return res.data;
 	} catch (error) {
 		console.error(error);
@@ -1017,6 +1275,9 @@ export async function getHome() {
 		description
 		featuredImage {
 		  url
+		}
+		featuredImageMobile{
+		url
 		}
 	  }
 	}
@@ -1188,5 +1449,148 @@ export async function getColumn(id, client) {
 		return column?.fields;
 	} catch (err) {
 		console.error(err);
+	}
+}
+
+export async function filterCollectionProductsBySize(handle, size) {
+	const query = `query getCollectionProducts($handle: String, $size: String!) {
+		collection(handle: $handle) {
+		  title
+		  handle
+		  products(first: 10, filters: [
+		  { variantOption: { name: "size", value: $size }}, {available: true}]) {
+			nodes {
+			  id
+			  handle
+			  description
+			  title
+			  vendor
+			  priceRange {
+				maxVariantPrice {
+				  amount
+				}
+			  }
+			  media(first: 5) {
+				nodes {
+				  previewImage {
+					url
+				  }
+				}
+			  }
+			  variants(first: 5) {
+				nodes {
+				  id
+				  title
+				  availableForSale
+				  selectedOptions {
+					name
+					value
+				  }
+				  image {
+					url
+				  }
+				}
+			  }
+			  featuredImage {
+				url
+			  }
+			}
+		  }
+		}
+	  }
+	  `;
+	const variables = {
+		handle,
+		size
+	};
+	const data = JSON.stringify({
+		query,
+		variables
+	});
+	const config = {
+		method: 'POST',
+		url: 'https://ag-ins-test-store.myshopify.com/api/2024-01/graphql.json',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-Shopify-Storefront-Access-Token': PUBLIC_STOREFRONT_API_TOKEN,
+			Connection: 'keep-alive'
+		},
+		data
+	};
+
+	try {
+		const res = await axios.request(config);
+		return res.data;
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+export async function filterProductsBySize(size) {
+	const query = `query getProducts($size: String!) {
+		products(first: 10, productFilters: [
+		  { variantOption: { name: "size", value: $size }}, {available: true}]) {
+		  nodes {
+			id
+			handle
+			description
+			title
+			vendor
+			priceRange {
+			  maxVariantPrice {
+				amount
+			  }
+			}
+			media(first: 5) {
+			  nodes {
+				previewImage {
+				  url
+				}
+			  }
+			}
+			variants(first: 5) {
+			  nodes {
+				id
+				title
+				availableForSale
+				selectedOptions {
+				  name
+				  value
+				}
+				image {
+				  url
+				}
+			  }
+			}
+			featuredImage {
+			  url
+			}
+		  }
+		}
+	  }
+	  `;
+	const variables = {
+		size
+	};
+	const data = JSON.stringify({
+		query,
+		variables
+	});
+	const config = {
+		method: 'POST',
+		url: 'https://ag-ins-test-store.myshopify.com/api/2024-01/graphql.json',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-Shopify-Storefront-Access-Token': PUBLIC_STOREFRONT_API_TOKEN,
+			Connection: 'keep-alive'
+		},
+		data
+	};
+
+	try {
+		const res = await axios.request(config);
+		return res.data;
+	} catch (error) {
+		console.error(error);
 	}
 }

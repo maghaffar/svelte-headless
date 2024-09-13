@@ -1,7 +1,25 @@
-import { getBlog } from '../../../utils';
+import { getBlog, getBlogsList, getPopularArticles, getCollectionProducts } from '../../../utils';
 
 export async function load({ params }) {
 	const res = await getBlog(params.handle);
+	const resp = await getBlogsList();
+	const response = await getPopularArticles();
+	const resCollectionProducts = await getCollectionProducts('sale');
+	const {
+		data: {
+			collection: { products: collectionProducts }
+		}
+	} = resCollectionProducts;
+	const {
+		data: {
+			articles: { nodes: popularArticles }
+		}
+	} = response;
+	const {
+		data: {
+			blogs: { nodes }
+		}
+	} = resp;
 	const {
 		data: { blog }
 	} = res;
@@ -11,7 +29,10 @@ export async function load({ params }) {
 		}
 	} = res;
 	return {
+		blogs: nodes,
 		articles,
-		blog
+		blog,
+		popularArticles,
+		collectionProducts
 	};
 }

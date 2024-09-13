@@ -3,6 +3,10 @@
 	export let form;
 </script>
 
+<svelte:head>
+	<title>Sign In</title>
+</svelte:head>
+
 <div class="container">
 	<div class="main">
 		<div class="signinImageDiv">
@@ -16,9 +20,11 @@
 					{#if form?.invalid}<p class="error">*Incorrect email or password</p>{/if}
 					<input type="email" name="email" placeholder="Email" />
 					<input type="password" name="password" placeholder="Password" />
-					<button type="submit" class="btnSubmit">SIGN IN</button>
+					<button type="submit" class="btnSubmit" aria-label="Sign In">SIGN IN</button>
 				</form>
-				<a class="forgotPassword" href="/account/login"> Forgot your password? </a>
+				<a class="forgotPassword" href="/account/login" aria-label="Forgot Password">
+					Forgot your password?
+				</a>
 				<a class="register" href="/account/register"
 					>Don't have an account? <b><a href="/account/register">Sign up</a></b> for faster
 					checkout, detailed order history, and to become a member of our loyalty program, the

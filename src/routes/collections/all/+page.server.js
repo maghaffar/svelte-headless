@@ -4,14 +4,14 @@ import { getProducts } from '../../../utils';
 export async function load() {
 	let {
 		data: {
-			products: { edges }
+			products: { nodes }
 		}
 	} = await getProducts();
 
-	if (!edges) {
+	if (!nodes) {
 		throw error(500, 'Something went wrong');
 	}
 	return {
-		edges
+		nodes
 	};
 }

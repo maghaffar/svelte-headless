@@ -1,11 +1,147 @@
 <script>
+	import { selectedSize, sortKey } from './../stores/filter.js';
 	import { browser } from '$app/environment';
 	let activeSvg1 = false;
 	let activeSvg2 = false;
-	let activeSvg3 = false;
+	let activeSvg3 = true;
 	$: active_1 = activeSvg1 ? 'active' : '';
 	$: active_2 = activeSvg2 ? 'active' : '';
 	$: active_3 = activeSvg3 ? 'active' : '';
+
+	function show2Images() {
+		activeSvg1 = !activeSvg1;
+		activeSvg2 = false;
+		activeSvg3 = false;
+		if (browser && activeSvg1 && window.innerWidth > 768) {
+			const images = document.getElementsByClassName('collectionImage');
+			const cards = document.getElementsByClassName('productCard');
+			const priceTitleDiv = document.getElementsByClassName('priceTitle');
+			const priceTitleDivArray = Array.from(priceTitleDiv);
+			priceTitleDivArray.forEach((div) => {
+				div.style.maxWidth = '615px';
+			});
+			const price = document.getElementsByClassName('price');
+			const priceArray = Array.from(price);
+			priceArray.forEach((div) => {
+				div.style.fontSize = '18px';
+			});
+
+			const title = document.getElementsByClassName('title');
+			const titleArray = Array.from(title);
+			titleArray.forEach((div) => {
+				div.style.fontSize = '18px';
+			});
+			const cardsArray = Array.from(cards);
+			cardsArray.forEach((card) => {
+				card.style.width = '45%';
+			});
+			const imagesArray = Array.from(images);
+			imagesArray.forEach((image) => {
+				image.style.objectFit = 'cover';
+				image.style.maxWidth = '620px';
+				image.style.maxHeight = '775px';
+				image.style.minWidth = '620px';
+				image.style.minHeight = '775px';
+			});
+		}
+	}
+	function show3Images() {
+		activeSvg2 = !activeSvg2;
+		activeSvg1 = false;
+		activeSvg3 = false;
+		if (browser && activeSvg2 && window.innerWidth > 768) {
+			const images = document.getElementsByClassName('collectionImage');
+			const cards = document.getElementsByClassName('productCard');
+			const cardsArray = Array.from(cards);
+			cardsArray.forEach((card) => {
+				card.style.width = '30%';
+			});
+			const imagesArray = Array.from(images);
+			imagesArray.forEach((image) => {
+				image.style.maxWidth = '405px';
+				image.style.maxHeight = '506px';
+				image.style.minWidth = '405px';
+				image.style.minHeight = '506px';
+			});
+		}
+	}
+	function show4Images() {
+		activeSvg3 = true;
+		activeSvg1 = false;
+		activeSvg2 = false;
+		if (browser && activeSvg3 && window.innerWidth > 768) {
+			const images = document.getElementsByClassName('collectionImage');
+			const cards = document.getElementsByClassName('productCard');
+			const cardsArray = Array.from(cards);
+			cardsArray.forEach((card) => {
+				card.style.width = '20%';
+			});
+			const imagesArray = Array.from(images);
+			imagesArray.forEach((image) => {
+				image.style.maxWidth = '300px';
+				image.style.maxHeight = '370px';
+				image.style.minWidth = '300px';
+				image.style.minHeight = '370px';
+			});
+		}
+	}
+
+	let isPopUpOpen = false;
+	let popUpDiv = null;
+	let sortId = 'default';
+	function handlePopup() {
+		isPopUpOpen = !isPopUpOpen;
+	}
+	const sizes = [
+		'XXS',
+		'XS',
+		'S',
+		'M',
+		'L',
+		'XL',
+		'XXL',
+		'1X',
+		'2X',
+		'3X',
+		'4X',
+		'5X',
+		'6X',
+		'OS',
+		'OS+',
+		'O/S',
+		'XXS/XS',
+		'S/M',
+		'L/XL',
+		'1X/2X',
+		'3X/4X',
+		'5X/6X'
+	];
+	const sortValues = [
+		{ value: 'Default', id: 'default' },
+		{ value: 'Price: High - Low', id: 'highToLow' },
+		{ value: 'Price: Low - High', id: 'lowToHigh' },
+		{ value: 'Title: A - Z', id: 'aToZ' },
+		{ value: 'Title: Z - A', id: 'zToA' }
+	];
+	let selectedSizeValue = null;
+	function filterProducts() {
+		sortKey.set('default');
+		sortId = 'default';
+		activeSvg1 = false;
+		activeSvg2 = false;
+		activeSvg3 = true;
+		selectedSize.set(selectedSizeValue);
+		handlePopup();
+	}
+	function sortProducts() {
+		selectedSize.set(null);
+		selectedSizeValue = null;
+		sortKey.set(sortId);
+		activeSvg1 = false;
+		activeSvg2 = false;
+		activeSvg3 = true;
+		handlePopup();
+	}
 </script>
 
 <div class="filterMainDiv">
@@ -16,7 +152,162 @@
 					<div class="col-12">
 						<div class="row">
 							<div class="col-6 filterHeading filterMainText">
-								<div class="filterText"></div>
+								<div class="filterText">Filter by:</div>
+							</div>
+							<div class="filterItem">
+								<div>
+									<div class="filterText">
+										<button
+											class="filterBtn"
+											on:click={() => {
+												popUpDiv = 'size';
+												handlePopup();
+											}}
+											aria-label="Size Filter">Size</button
+										>
+									</div>
+									<div class={isPopUpOpen && popUpDiv == 'size' ? '' : 'popUpMain'}>
+										<div class="overlay"></div>
+										<div class="popUpMainFilters">
+											<div class="popUpHeader">
+												<p class="filterText headerTitle">Size</p>
+												<button
+													class="closePopup"
+													on:click={() => {
+														popUpDiv = '';
+														handlePopup();
+													}}
+													><svg
+														xmlns="http://www.w3.org/2000/svg"
+														xmlns:xlink="http://www.w3.org/1999/xlink"
+														version="1.1"
+														id="Capa_1"
+														x="0px"
+														y="0px"
+														viewBox="0 0 22.88 22.88"
+														style="enable-background:new 0 0 22.88 22.88;"
+														xml:space="preserve"
+													>
+														<path
+															style="fill: #373735;"
+															d="M0.324,1.909c-0.429-0.429-0.429-1.143,0-1.587c0.444-0.429,1.143-0.429,1.587,0l9.523,9.539  l9.539-9.539c0.429-0.429,1.143-0.429,1.571,0c0.444,0.444,0.444,1.159,0,1.587l-9.523,9.524l9.523,9.539  c0.444,0.429,0.444,1.143,0,1.587c-0.429,0.429-1.143,0.429-1.571,0l-9.539-9.539l-9.523,9.539c-0.444,0.429-1.143,0.429-1.587,0  c-0.429-0.444-0.429-1.159,0-1.587l9.523-9.539L0.324,1.909z"
+														></path>
+													</svg>
+												</button>
+											</div>
+											<div class="popUpMainFiltersBody">
+												<div>
+													<div class="filterText mb">Size</div>
+													<div class="mb">
+														<div class="sizes">
+															{#each sizes as size}
+																<!-- svelte-ignore a11y-click-events-have-key-events -->
+																<!-- svelte-ignore a11y-no-static-element-interactions -->
+																<div
+																	class="size"
+																	on:click={() => {
+																		selectedSizeValue = selectedSizeValue == size ? '' : size;
+																		filterProducts();
+																	}}
+																>
+																	<p
+																		class="sizeText filterText {selectedSizeValue == size
+																			? 'selectedSize'
+																			: ''}"
+																	>
+																		{size}
+																	</p>
+																</div>
+															{/each}
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- <div class="filterItem">
+								<div>
+									<div class="filterText">
+										<button class="filterBtn">Print</button>
+									</div>
+								</div>
+							</div>
+							<div class="filterItem">
+								<div>
+									<div class="filterText">
+										<button class="filterBtn">Style</button>
+									</div>
+								</div>
+							</div> -->
+							<div class="filterItem">
+								<div>
+									<div class="filterText">
+										<button
+											class="filterBtn"
+											on:click={() => {
+												popUpDiv = 'sort';
+												handlePopup();
+											}}
+											aria-label="Sort Filter">Sort</button
+										>
+									</div>
+									<div class={isPopUpOpen && popUpDiv == 'sort' ? '' : 'popUpMain'}>
+										<div class="overlay"></div>
+										<div class="popUpMainFilters">
+											<div class="popUpHeader">
+												<p class="filterText headerTitle">Sort By</p>
+												<button
+													class="closePopup"
+													on:click={() => {
+														popUpDiv = '';
+														handlePopup();
+													}}
+													><svg
+														xmlns="http://www.w3.org/2000/svg"
+														xmlns:xlink="http://www.w3.org/1999/xlink"
+														version="1.1"
+														id="Capa_1"
+														x="0px"
+														y="0px"
+														viewBox="0 0 22.88 22.88"
+														style="enable-background:new 0 0 22.88 22.88;"
+														xml:space="preserve"
+													>
+														<path
+															style="fill: #373735;"
+															d="M0.324,1.909c-0.429-0.429-0.429-1.143,0-1.587c0.444-0.429,1.143-0.429,1.587,0l9.523,9.539  l9.539-9.539c0.429-0.429,1.143-0.429,1.571,0c0.444,0.444,0.444,1.159,0,1.587l-9.523,9.524l9.523,9.539  c0.444,0.429,0.444,1.143,0,1.587c-0.429,0.429-1.143,0.429-1.571,0l-9.539-9.539l-9.523,9.539c-0.444,0.429-1.143,0.429-1.587,0  c-0.429-0.444-0.429-1.159,0-1.587l9.523-9.539L0.324,1.909z"
+														></path>
+													</svg>
+												</button>
+											</div>
+											<div class="popUpMainFiltersBody">
+												<div class="mb">
+													<div class="sortValues">
+														<div class="sort">
+															<div class="filterText">
+																<!-- svelte-ignore a11y-no-static-element-interactions -->
+																{#each sortValues as sort}
+																	<!-- svelte-ignore a11y-click-events-have-key-events -->
+																	<div
+																		class="sortText {sortId == sort.id ? 'selectedSort' : ''}"
+																		on:click={() => {
+																			sortId = sortId == sort.id ? 'default' : sort.id;
+																			sortProducts();
+																		}}
+																	>
+																		{sort.value}
+																	</div>
+																{/each}
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -28,29 +319,7 @@
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div class="svgInner">
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
-			<div
-				class="customSvgWrap {active_1}"
-				on:click={() => {
-					activeSvg1 = !activeSvg1;
-					activeSvg2 = false;
-					activeSvg3 = false;
-					if (browser && activeSvg1 && window.innerWidth > 768) {
-						const images = document.getElementsByClassName('collectionImage');
-						const cards = document.getElementsByClassName('productCard');
-						const cardsArray = Array.from(cards);
-						cardsArray.forEach((card) => {
-							card.style.width = '45%';
-						});
-						const imagesArray = Array.from(images);
-						imagesArray.forEach((image) => {
-							image.style.maxWidth = '620px';
-							image.style.maxHeight = '775px';
-							image.style.minWidth = '620px';
-							image.style.minHeight = '775px';
-						});
-					}
-				}}
-			>
+			<div class="customSvgWrap {active_1}" on:click={show2Images}>
 				<svg
 					width="25"
 					height="24"
@@ -73,29 +342,7 @@
 				</svg>
 			</div>
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
-			<div
-				class="customSvgWrap {active_2}"
-				on:click={() => {
-					activeSvg2 = !activeSvg2;
-					activeSvg1 = false;
-					activeSvg3 = false;
-					if (browser && activeSvg2 && window.innerWidth > 768) {
-						const images = document.getElementsByClassName('collectionImage');
-						const cards = document.getElementsByClassName('productCard');
-						const cardsArray = Array.from(cards);
-						cardsArray.forEach((card) => {
-							card.style.width = '30%';
-						});
-						const imagesArray = Array.from(images);
-						imagesArray.forEach((image) => {
-							image.style.maxWidth = '405px';
-							image.style.maxHeight = '506px';
-							image.style.minWidth = '405px';
-							image.style.minHeight = '506px';
-						});
-					}
-				}}
-			>
+			<div class="customSvgWrap {active_2}" on:click={show3Images}>
 				<svg
 					width="24"
 					height="24"
@@ -141,29 +388,7 @@
 				</svg>
 			</div>
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
-			<div
-				class="customSvgWrap {active_3}"
-				on:click={() => {
-					activeSvg3 = !activeSvg3;
-					activeSvg1 = false;
-					activeSvg2 = false;
-					if (browser && activeSvg3 && window.innerWidth > 768) {
-						const images = document.getElementsByClassName('collectionImage');
-						const cards = document.getElementsByClassName('productCard');
-						const cardsArray = Array.from(cards);
-						cardsArray.forEach((card) => {
-							card.style.width = '20%';
-						});
-						const imagesArray = Array.from(images);
-						imagesArray.forEach((image) => {
-							image.style.maxWidth = '300px';
-							image.style.maxHeight = '370px';
-							image.style.minWidth = '300px';
-							image.style.minHeight = '370px';
-						});
-					}
-				}}
-			>
+			<div class="customSvgWrap {active_3}" on:click={show4Images}>
 				<svg
 					width="37"
 					height="24"
@@ -244,7 +469,7 @@
 
 <style>
 	.filterMainDiv {
-		top: 210px;
+		top: 97px;
 		position: sticky;
 		background: #fff;
 		height: 53px;
@@ -254,6 +479,7 @@
 		margin-bottom: 32px;
 		padding-left: 1.5rem;
 		padding-right: 1.5rem;
+		z-index: 2;
 	}
 	.filters {
 		width: 50%;
@@ -320,6 +546,142 @@
 		font-size: 15px;
 		line-height: 22.5px;
 		color: #000;
+		font-family: Poppins;
+	}
+	.filterItem {
+		position: relative;
+		flex: 0 0 auto;
+		width: auto;
+		max-width: 100%;
+		cursor: pointer;
+	}
+	.filterBtn {
+		display: flex;
+		border: none;
+		background: transparent;
+		font-size: 15px;
+		line-height: 22.5px;
+		color: #000;
+		font-family: Poppins;
+		font-weight: 400;
+		cursor: pointer;
+	}
+	.filterBtn::after {
+		content: url('/down.svg');
+		font-size: 16px;
+		margin-left: 4px;
+		line-height: 1px;
+		margin-top: 10px;
+		font-weight: 700;
+	}
+	.popUpMain {
+		display: none;
+	}
+	.overlay {
+		background: #000;
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		height: 100%;
+		opacity: 0.4;
+		z-index: 2;
+	}
+	.popUpMainFilters {
+		background-color: #fff;
+		width: 308px;
+		position: absolute;
+		top: 37px;
+		z-index: 2;
+		left: 0;
+	}
+	.popUpHeader {
+		background: #f4ebe0;
+		display: flex;
+		align-items: center;
+		padding: 10px;
+	}
+	.headerTitle {
+		width: 90%;
+		margin-bottom: 0;
+		margin-top: 0;
+	}
+	.closePopup {
+		width: 10%;
+		text-align: right;
+		border: none;
+		background: transparent;
+		cursor: pointer;
+	}
+	.closePopup svg {
+		height: 12px;
+		width: 12px;
+	}
+	.popUpMainFiltersBody {
+		padding: 10px;
+		max-height: calc(80vh - 46px);
+		overflow-y: auto;
+		overflow-x: hidden;
+	}
+	.mb {
+		margin-bottom: 0.5rem;
+	}
+	.sizes {
+		margin-left: -0.25rem;
+		margin-right: -0.25rem;
+		align-items: center;
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.size {
+		width: 25%;
+		padding: 5px;
+	}
+	.sizeText {
+		margin-bottom: 0;
+		margin-top: 0;
+		cursor: pointer;
+		display: flex;
+		background-color: #f4ebe0;
+		justify-content: center;
+		padding: 10px;
+	}
+	.selectedSize {
+		background: rgb(61, 61, 59);
+		color: white;
+	}
+	.sortValues {
+		margin-left: -0.25rem;
+		margin-right: -0.25rem;
+		align-items: center;
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.sort {
+		flex: 0 0 100%;
+		max-width: 100%;
+		padding-left: 1rem;
+		padding-right: 1rem;
+		position: relative;
+		width: 100%;
+	}
+	.sortText {
+		display: block;
+		background-color: #f4ebe0;
+		padding: 5px 10px;
+		margin-bottom: 10px;
+	}
+	.selectedSort {
+		background-color: black;
+		color: white;
+	}
+	@media screen and (min-width: 992px) {
+		.filterItem {
+			padding-left: 1rem;
+			padding-right: 1rem;
+		}
 	}
 
 	@media screen and (max-width: 768px) {

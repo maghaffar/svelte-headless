@@ -1,6 +1,18 @@
-import { getBlog } from '../../../../utils.js';
+import { getBlog, getPopularArticles, getCollectionProducts } from '../../../../utils.js';
 export async function load({ params }) {
 	const res = await getBlog(params.blogHandle);
+	const response = await getPopularArticles();
+	const resCollectionProducts = await getCollectionProducts('sale');
+	const {
+		data: {
+			collection: { products: collectionProducts }
+		}
+	} = resCollectionProducts;
+	const {
+		data: {
+			articles: { nodes: popularArticles }
+		}
+	} = response;
 	const {
 		data: {
 			blog: { articles }
@@ -13,6 +25,8 @@ export async function load({ params }) {
 		}
 	});
 	return {
-		article
+		article,
+		popularArticles,
+		collectionProducts
 	};
 }

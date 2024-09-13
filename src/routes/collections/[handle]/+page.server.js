@@ -10,6 +10,7 @@ export async function load({ params }) {
 		throw error(500, 'Something went wrong');
 	}
 	return {
-		collection
+		collection,
+		collectionHandle: params.handle
 	};
 }

@@ -3,21 +3,32 @@
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
-		<link rel="stylesheet" href="https://unpkg.com/flickity@2/dist/flickity.min.css" />
+		<link
+			rel="preload"
+			href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+			as="style"
+			onload="this.onload=null;this.rel='stylesheet'"
+		/>
+		<noscript
+			><link
+				rel="stylesheet"
+				href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+		/></noscript>
+
+		<link
+			rel="preload"
+			href="https://unpkg.com/flickity@2/dist/flickity.min.css"
+			as="style"
+			onload="this.onload=null;this.rel='stylesheet'"
+		/>
+		<noscript
+			><link rel="stylesheet" href="https://unpkg.com/flickity@2/dist/flickity.min.css"
+		/></noscript>
+
+		<script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js" async defer></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		%sveltekit.head%
-
-		<script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js"></script>
 	</head>
-	<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-5M7DT9HK29"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-5M7DT9HK29');
-</script>
 	<body data-sveltekit-preload-data="tap">
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
@@ -29,5 +40,7 @@
 	}
 	body {
 		margin: 0;
+		width: 100%;
+		height: 100%;
 	}
 </style>

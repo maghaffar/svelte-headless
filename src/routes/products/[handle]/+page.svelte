@@ -1,6 +1,9 @@
 <script>
+	import { selectedSize as selectedSizeStore } from './../../../stores/filter.js';
 	import { isCartUpdated } from './../../../stores/cart.js';
+	import { isQuickShopClosed } from '../../../stores/quickShop.js';
 	import { onMount } from 'svelte';
+	import QuickShop from '../../../components/QuickShop.svelte';
 	// import function to register Swiper custom elements
 	import { register } from 'swiper/element/bundle';
 	// register Swiper custom elements
@@ -14,8 +17,15 @@
 	let selectedSize;
 	let selecetdColor;
 	let merchandiseId;
-	$: isOpen = false;
 	let available = false;
+	let quickShopProduct;
+
+	$: isQuickShopClosedVal = true;
+	isQuickShopClosed.subscribe((value) => {
+		isQuickShopClosedVal = value;
+	});
+
+	$: isOpen = false;
 	$: urls = product.media.nodes.map((media) => {
 		return media.previewImage.url;
 	});
@@ -27,12 +37,15 @@
 			id: null
 		};
 
-		if (variant.selectedOptions.length == 2 && variant.availableForSale) {
-			vari = {
-				Size: variant.selectedOptions[0].value,
-				Color: variant.selectedOptions[1]?.value,
-				id: variant.id
-			};
+		if (variant.availableForSale) {
+			variant.selectedOptions.forEach((option) => {
+				if (option.name == 'Size') {
+					vari = {
+						Size: option.value,
+						id: variant.id
+					};
+				}
+			});
 		}
 		return vari;
 	});
@@ -114,7 +127,7 @@
 
 	async function AddToCart() {
 		available = false;
-		const res = await fetch('../api/cart', {
+		const res = await fetch('/api/cart', {
 			method: 'POST',
 			body: JSON.stringify({
 				merchandiseId,
@@ -128,6 +141,7 @@
 			isCartUpdated.set(true);
 		}
 	}
+
 	function clear() {
 		selectedSize = null;
 		selecetdColor = null;
@@ -175,17 +189,25 @@
 			loop: false,
 			slidesPerView: 'auto',
 			navigation: true,
-			pagination: false,
-			autoplay: {
-				delay: 2000
-			}
+			pagination: false
 		};
 		if (productGallerySlider) {
 			Object.assign(productGallerySlider, productGallerySliderParams);
 			productGallerySlider.initialize();
 		}
+
+		selectedSizeStore.subscribe((value) => {
+			selectedSize = value;
+			if (selectedSize != '') {
+				handleAvailablity();
+			}
+		});
 	});
 </script>
+
+<svelte:head>
+	<title>{product.title}</title>
+</svelte:head>
 
 <div class="container">
 	<div class="main">
@@ -317,11 +339,12 @@
 					disabled={!available}
 					on:click={() => {
 						AddToCart();
-					}}>Add to Cart</button
+					}}
+					aria-label="Add To Cart">Add to Cart</button
 				>
 			{/if}
 			{#if !available}
-				<button class="notAvailable" disabled>Select Size</button>
+				<button class="notAvailable" disabled aria-label="Not Available">Select Size</button>
 			{/if}
 			<div class="productTabs">
 				<div class="tab">
@@ -400,32 +423,98 @@
 				<swiper-container init="false" class="collectionSlider">
 					{#each collectionProducts.nodes as product}
 						<swiper-slide>
-							<a class="slide" href={`/products/${product.handle}`}>
-								<img
-									src={`${product.featuredImage.url}&width=600`}
-									alt="Product"
-									class="slideImage"
-								/>
+							<a
+								class="slide"
+								href={`/products/${product.handle}`}
+								on:click={(event) => {
+									if (
+										event.target.closest('.quickShopBtn') ||
+										event.target.closest('.quickShopBtnMobile')
+									) {
+										event.preventDefault();
+									}
+								}}
+							>
+								<div class="slideImageDiv">
+									<img
+										src={`${product.featuredImage.url}&width=600`}
+										alt="Product"
+										class="slideImage"
+									/>
+									<button
+										class="quickShopBtn"
+										on:click={() => {
+											isQuickShopClosed.set(false);
+											quickShopProduct = product;
+										}}
+										aria-label="Quick Shop"
+									>
+										QUICK SHOP
+									</button>
+									<button
+										class="quickShopBtnMobile"
+										on:click={() => {
+											isQuickShopClosed.set(false);
+											quickShopProduct = product;
+										}}
+										aria-label="Quick Shop"
+									>
+										<svg
+											id="Layer_2"
+											data-name="Layer 2"
+											xmlns="http://www.w3.org/2000/svg"
+											viewBox="0 0 53.41 55.72"
+										>
+											<defs>
+												<style>
+													.qshbtn {
+														fill: none;
+														stroke: #000;
+														stroke-miterlimit: 10;
+														stroke-width: 2.5px;
+													}
+												</style>
+											</defs>
+											<g id="Layer_1-2" data-name="Layer 1">
+												<g>
+													<path
+														class="qshbtn"
+														d="M14.33,20.24v-11.61c0-1.6.59-3.14,1.68-4.3,1.49-1.59,3.65-3.05,6.51-3.08,2.26-.02,4.94.21,7.54,3.23.97,1.12,1.49,2.59,1.49,4.09v11.67"
+													></path>
+													<g>
+														<path
+															class="qshbtn"
+															d="M28.55,40.93c.68-5.04,4.65-9.18,9.67-10.03,1.55-.26,3.06-.23,4.47.06-.14-4.14-.21-6.69-.41-9.1-.56-7.06-8-7.32-8-7.32H10.76c-7.69-.17-7.95,7.39-7.95,7.39,0,0-1.27,16.24-1.55,24.71.13,4.89,3.86,6.78,6.02,7.47.79.25,1.61.36,2.44.36,4.53,0,24.36-.03,30.59-.03.64.08-1.73-.02-1.22-.06-6.5-.66-11.45-6.59-10.53-13.45Z"
+														></path>
+														<path
+															class="qshbtn"
+															d="M39.08,54.37c.4.04.81.06,1.22.06,6.55,0,11.86-5.31,11.86-11.86,0-5.73-4.06-10.51-9.46-11.62"
+														></path>
+													</g>
+													<g>
+														<line class="qshbtn" x1="40.5" y1="36.47" x2="40.5" y2="48.52"></line>
+														<line class="qshbtn" x1="46.52" y1="42.5" x2="34.47" y2="42.5"></line>
+													</g>
+												</g>
+											</g>
+										</svg>
+									</button>
+								</div>
 								<p class="collectionProductTitle">{product.title}</p>
-								<p class="collectionProductPrice">${product.priceRange.maxVariantPrice.amount}</p>
+								<p class="collectionProductPrice">
+									${product.priceRange.maxVariantPrice.amount}
+								</p>
 							</a>
 						</swiper-slide>
 					{/each}
 				</swiper-container>
+				{#if !isQuickShopClosedVal}
+					<QuickShop product={quickShopProduct} />
+				{/if}
 			</div>
 		</div>
 	</div>
 {/if}
-<div class="reviews">
-	<div
-		class="yotpo yotpo-main-widget"
-		data-product-id="8872929493271"
-		data-price={initialPrice}
-		data-currency="PKR"
-		data-name="VANS"
-		data-url="http://localhost:5173/products/vans-authentic-lo-pro-burgandy-white"
-	></div>
-</div>
 
 <style>
 	.container {
@@ -797,6 +886,47 @@
 		font-size: 12px;
 		margin: 0;
 	}
+	.slide:hover .quickShopBtn {
+		bottom: 0px;
+		opacity: 1;
+		cursor: pointer;
+	}
+	.quickShopBtn {
+		font-family: Poppins;
+		position: absolute;
+		bottom: -2px;
+		left: 0;
+		width: 100%;
+		border: none;
+		height: 40px;
+		background-color: #f9f5ef;
+		padding: 0;
+		opacity: 0;
+		transition: bottom 0.5s linear;
+		text-transform: uppercase;
+		font-size: 16px;
+	}
+	.quickShopBtnMobile {
+		cursor: pointer;
+		display: none;
+		position: absolute;
+		bottom: 6px;
+		right: 3px;
+		width: 36px;
+		height: 36px;
+		border-radius: 50%;
+		border: none;
+		padding: 6px;
+		background-color: #f9f5ef;
+	}
+	.quickShopBtnMobile svg {
+		padding-left: 2px;
+		width: 24px;
+		height: 24px;
+	}
+	.slideImageDiv {
+		position: relative;
+	}
 	swiper-container::part(button-prev) {
 		color: black;
 		width: 25px;
@@ -866,6 +996,12 @@
 			display: flex;
 			background: #f3ebe0;
 			align-items: center;
+		}
+		.quickShopBtn {
+			display: none;
+		}
+		.quickShopBtnMobile {
+			display: block;
 		}
 	}
 	@media screen and (max-width: 650px) {

@@ -3,6 +3,10 @@
 	$: customer = data.customer;
 </script>
 
+<svelte:head>
+	<title>Account</title>
+</svelte:head>
+
 <div class="account">
 	<div class="container">
 		<div class="row">

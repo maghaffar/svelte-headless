@@ -1,4 +1,4 @@
-import { getCollections, getHome, getProducts, getBlogs } from '../utils';
+import { getCollections, getHome, getProducts, getBlogs, getCollectionProducts } from '../utils';
 export async function load({}) {
 	const collections = await getCollections();
 	const home = await getHome();
@@ -8,6 +8,7 @@ export async function load({}) {
 		}
 	} = home;
 	const featuredImage = items[0].featuredImage;
+	const featuredImageMobile = items[0].featuredImageMobile;
 	const imageText = items[0].title;
 	const imageDescription = items[0].description;
 	const {
@@ -15,13 +16,6 @@ export async function load({}) {
 			collections: { edges }
 		}
 	} = collections;
-
-	// Feartured Products
-	let {
-		data: {
-			products: { edges: products }
-		}
-	} = await getProducts();
 	// Feartured Blogs
 	const res = await getBlogs();
 	const blogs = res.data?.blogs?.nodes;
@@ -31,10 +25,34 @@ export async function load({}) {
 			articles.push(article);
 		});
 	});
+	// Collection Products
+	const ress = await getCollectionProducts('men');
+	const {
+		data: {
+			collection: { products: formalCollectionProducts }
+		}
+	} = ress;
+	// Sale Collection
+	const sale = await getCollectionProducts('sale');
+	const {
+		data: {
+			collection: { products: saleCollectionProducts }
+		}
+	} = sale;
+	// Sale Collection
+	const kids = await getCollectionProducts('kid');
+	const {
+		data: {
+			collection: { products: kidsCollectionProducts }
+		}
+	} = kids;
 	return {
 		edges,
 		featuredImage,
-		products,
+		featuredImageMobile,
+		formalCollectionProducts: formalCollectionProducts.nodes,
+		saleCollectionProducts: saleCollectionProducts.nodes,
+		kidsCollectionProducts: kidsCollectionProducts.nodes,
 		articles,
 		imageText,
 		imageDescription
