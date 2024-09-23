@@ -25,7 +25,9 @@
 		const flkty = new Flickity('.blogCollectionMainDiv', {
 			cellAlign: 'left',
 			contain: true,
-			pageDots: false
+			pageDots: false,
+			freeScroll: true,
+			wrapAround: true
 		});
 
 		const prevArrow = document.querySelector(
@@ -140,7 +142,7 @@
 										<div class="pxLg3 px colAuto">
 											<div class="textCenter m0">
 												<a
-													href="/collections/sale"
+													href="/collections/new-arrivals"
 													data-sveltekit-preload-data="hover"
 													class="shopAll">Shop All</a
 												>
@@ -274,7 +276,7 @@
 				<div class="blogRight">
 					<div>
 						<div class="founder">
-							<img src="/magFounder.jpg" alt="mag founder" width="335px" height="335px" />
+							<img src="/magFounder.webp" alt="mag founder" width="335px" height="335px" />
 							<div class="sideBarText">
 								<p>
 									<em><strong>INS MAG: </strong></em>Founder Amy Voloshin is passionate about

@@ -99,7 +99,6 @@
 		});
 		selectedSize = null;
 		const added = await res.json();
-		console.log(added);
 		isQuickShopClosed.set(true);
 		if (added == true) {
 			isCartUpdated.set(true);

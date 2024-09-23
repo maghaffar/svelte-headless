@@ -4,7 +4,7 @@ export async function load({ params }) {
 	const res = await getBlog(params.handle);
 	const resp = await getBlogsList();
 	const response = await getPopularArticles();
-	const resCollectionProducts = await getCollectionProducts('sale');
+	const resCollectionProducts = await getCollectionProducts('new-arrivals');
 	const {
 		data: {
 			collection: { products: collectionProducts }

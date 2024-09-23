@@ -2,7 +2,7 @@ import { getBlog, getPopularArticles, getCollectionProducts } from '../../../../
 export async function load({ params }) {
 	const res = await getBlog(params.blogHandle);
 	const response = await getPopularArticles();
-	const resCollectionProducts = await getCollectionProducts('sale');
+	const resCollectionProducts = await getCollectionProducts('new-arrivals');
 	const {
 		data: {
 			collection: { products: collectionProducts }

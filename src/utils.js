@@ -620,7 +620,7 @@ export async function cartNoteUpdate(cartId, note) {
 
 export async function getCollections() {
 	const query = `{
-		collections(first: 4) {
+		collections(first: 10) {
 		  edges {
 			node {
 			  id
@@ -1282,6 +1282,88 @@ export async function getHome() {
 	  }
 	}
   }`;
+	let data = JSON.stringify({
+		query
+	});
+
+	let config = {
+		method: 'post',
+		url: 'https://graphql.contentful.com/content/v1/spaces/f5irrz67l1d1/environments/master',
+		headers: {
+			'Accept-Encoding': 'gzip, deflate, br',
+			'Content-Type': 'application/json',
+			Accept: 'application/json',
+			Connection: 'keep-alive',
+			DNT: '1',
+			Origin: 'https://033bad1b-c8e2-4ee5-b8f8-f4c19c33ca37.ctfcloud.net',
+			Authorization: 'Bearer RfBbLZQ-T2xQ6wKRpsvHN-1ReEg8LRcKptJJRXk24q0'
+		},
+		data: data
+	};
+
+	try {
+		const res = await axios.request(config);
+		return res.data;
+	} catch (err) {
+		console.error(err);
+	}
+}
+export async function getBgImagesWithText() {
+	const query = `{
+  bgImagesWithTextCollection{
+    items{
+      bgCollectionCollection{
+        items{
+          bgImage{
+            url
+          }
+          title
+          description
+          url
+        }
+      }
+    }
+  }
+}`;
+	let data = JSON.stringify({
+		query
+	});
+
+	let config = {
+		method: 'post',
+		url: 'https://graphql.contentful.com/content/v1/spaces/f5irrz67l1d1/environments/master',
+		headers: {
+			'Accept-Encoding': 'gzip, deflate, br',
+			'Content-Type': 'application/json',
+			Accept: 'application/json',
+			Connection: 'keep-alive',
+			DNT: '1',
+			Origin: 'https://033bad1b-c8e2-4ee5-b8f8-f4c19c33ca37.ctfcloud.net',
+			Authorization: 'Bearer RfBbLZQ-T2xQ6wKRpsvHN-1ReEg8LRcKptJJRXk24q0'
+		},
+		data: data
+	};
+
+	try {
+		const res = await axios.request(config);
+		return res.data;
+	} catch (err) {
+		console.error(err);
+	}
+}
+export async function getCustomHeader() {
+	const query = `{
+customHeader(id:"wMWHAcIrRbWjoG3pFXJ6h"){
+  headerBlockCollection{
+    items{
+      text
+      image{
+        url
+      }
+    }
+  }
+}
+}`;
 	let data = JSON.stringify({
 		query
 	});

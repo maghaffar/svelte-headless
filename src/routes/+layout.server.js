@@ -1,4 +1,4 @@
-import { getColumn, getMegaMenu, getCartLines, createCart } from '../utils';
+import { getColumn, getMegaMenu, getCartLines, createCart, getCustomHeader } from '../utils';
 import contentful from 'contentful';
 import { PUBLIC_CONTENTFUL_ACCESS_TOKEN } from '$env/static/public';
 import { PUBLIC_CONTENTFUL_SPACE_ID } from '$env/static/public';
@@ -50,9 +50,19 @@ export async function load({ cookies }) {
 	const res = await getCartLines(cartId);
 	const { data: { cart = {} } = {} } = res;
 
+	const customHeaderRes = await getCustomHeader();
+	const {
+		data: {
+			customHeader: {
+				headerBlockCollection: { items: customHeaderItems }
+			}
+		}
+	} = customHeaderRes;
+
 	return {
 		menuItems,
 		cart,
-		cartId
+		cartId,
+		customHeaderItems
 	};
 }

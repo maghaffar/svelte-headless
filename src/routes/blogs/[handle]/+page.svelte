@@ -53,7 +53,9 @@
 		const flkty1 = new Flickity('.readMoreArticlesMainDiv', {
 			cellAlign: 'left',
 			contain: true,
-			pageDots: false
+			pageDots: false,
+			freeScroll: true,
+			wrapAround: true
 		});
 
 		const arrowss = Array.from(
@@ -167,7 +169,7 @@
 				<div class="blogRight">
 					<div>
 						<div class="founder">
-							<img src="/magFounder.jpg" alt="mag founder" width="335px" height="335px" />
+							<img src="/magFounder.webp" alt="mag founder" width="335px" height="335px" />
 							<div class="sideBarText">
 								<p>
 									<em><strong>INS MAG: </strong></em>Founder Amy Voloshin is passionate about

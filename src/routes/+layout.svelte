@@ -1,13 +1,16 @@
 <script>
-	import { browser } from '$app/environment';
 	import { isCartUpdated } from './../stores/cart.js';
 	import { invalidateAll } from '$app/navigation';
 	import { cartLinesUpdate } from '../utils.js';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import { register } from 'swiper/element/bundle';
+	// register Swiper custom elements
+	register();
 
 	export let data;
 	const menuItems = data.menuItems ? data.menuItems : [];
+	const customHeaderItems = data.customHeaderItems;
 	$: openCustomSearchBar = false;
 	let openIndex = -1;
 	let isActive1 = false;
@@ -217,10 +220,75 @@
 				query = '';
 			}
 		});
+		///
+		const swiperEl = document.querySelector(`.headerSlider`);
+
+		const swiperParams = {
+			slidesPerView: 1,
+			navigation: false,
+			loop: true,
+			autoplay: true
+		};
+
+		if (swiperEl) {
+			Object.assign(swiperEl, swiperParams);
+			swiperEl.initialize();
+		}
 	});
 </script>
 
 <div class={`container ${scrolled}`}>
+	<div class="customHeaderContainer">
+		<div class="desktopHeader">
+			<div class="headerInner">
+				{#each customHeaderItems as item, i}
+					<div class="headerBlock">
+						<div class="headerImage">
+							<img src={item.image.url} alt={item.text} />
+						</div>
+						<div class="headerText">{item.text}</div>
+					</div>
+					{#if i != customHeaderItems.length - 1}
+						<svg
+							width="1"
+							height="20"
+							viewBox="0 0 1 20"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<line
+								style="
+				  stroke: white;
+			  "
+								x1="0.5"
+								y1="1"
+								x2="0.499999"
+								y2="19"
+								stroke="white"
+								stroke-linecap="round"
+							></line>
+						</svg>
+					{/if}
+				{/each}
+			</div>
+		</div>
+		<div class="mobileHeader">
+			<div class="mobileHeaderSliderDiv">
+				<swiper-container init="false" class="headerSlider">
+					{#each customHeaderItems as item, i}
+						<swiper-slide>
+							<div class="headerBlock">
+								<div class="headerImage">
+									<img src={item.image.url} alt={item.text} />
+								</div>
+								<div class="headerText">{item.text}</div>
+							</div>
+						</swiper-slide>
+					{/each}
+				</swiper-container>
+			</div>
+		</div>
+	</div>
 	<div class="main">
 		<div class="upper">
 			{#if openCustomSearchBar}
@@ -1025,7 +1093,7 @@
 								}}>SHOP BEST SELLERS</a
 							>
 							<a
-								href="/collections/all"
+								href="/collections/new-arrivals"
 								class="shopBtn"
 								on:click={() => {
 									isCartUpdated.set(false);
@@ -1656,6 +1724,8 @@
 		padding-right: 0.5rem;
 		padding: 0 13px 13px;
 		font-size: 14px;
+		font-family: Poppins;
+		letter-spacing: 1px;
 	}
 
 	a {
@@ -1669,6 +1739,59 @@
 		flex-direction: column;
 		width: 100%;
 		justify-content: center;
+	}
+	.customHeaderContainer {
+		position: relative;
+		z-index: 9999;
+	}
+	.desktopHeader {
+		min-height: 36px;
+		background-color: #245490;
+		color: #fff;
+		width: 100%;
+		display: flex;
+		align-items: center;
+		padding: 0 20px;
+	}
+	.mobileHeader {
+		display: none;
+		background: #245490;
+		color: #fff;
+		width: 100%;
+		padding: 6px 10px;
+		min-height: 36px;
+	}
+	.mobileHeaderSliderDiv {
+		overflow: hidden;
+	}
+	.headerInner {
+		display: flex;
+		justify-content: space-between;
+		max-width: 1100px;
+		margin: 0 auto;
+		width: 100%;
+		align-items: center;
+	}
+	.headerBlock {
+		display: flex;
+		align-items: flex-end;
+		gap: 8px;
+	}
+	.headerImage {
+		height: 24px;
+		width: 24px;
+		display: flex;
+		align-items: center;
+	}
+	.headerImage img {
+		max-width: 100%;
+	}
+	.headerText {
+		font-size: 14px;
+		line-height: 18px;
+		font-family: Poppins;
+		font-weight: 400;
+		margin: 0;
 	}
 	.upper {
 		display: flex;
@@ -2791,6 +2914,16 @@
 		}
 		.scrolled {
 			top: -87px;
+		}
+		.desktopHeader {
+			display: none;
+		}
+		.mobileHeader {
+			display: block;
+		}
+		.headerBlock {
+			justify-content: center;
+			width: 100%;
 		}
 	}
 	@media screen and (max-width: 700px) {

@@ -10,24 +10,46 @@
 	const collections = data.edges;
 	const featuredImage = data.featuredImage;
 	const featuredImageMobile = data.featuredImageMobile;
-	console.log(featuredImageMobile);
 	const imageText = data.imageText;
 	const imageDescription = data.imageDescription;
 	const formalCollectionProducts = data.formalCollectionProducts?.slice(2, 6);
 	const saleCollectionProducts = data.saleCollectionProducts?.slice(2, 6);
 	const kidsCollectionProducts = data.kidsCollectionProducts?.slice(1, 6);
 	const articles = data.articles?.length > 4 ? data.articles?.slice(0, 4) : data.articles;
+	const bgCollectionItems = data.bgCollectionItems;
 	$: isQuickShopClosedVal = true;
 	isQuickShopClosed.subscribe((value) => {
 		isQuickShopClosedVal = value;
 	});
 	$: quickShopProduct = null;
 	onMount(() => {
-		const flkty = new Flickity('.main-carousel', {
-			cellAlign: 'left',
-			contain: true,
-			pageDots: false
-		});
+		function initFlickity() {
+			if (typeof Flickity !== 'undefined') {
+				const flkty = new Flickity('.main-carousel', {
+					cellAlign: 'left',
+					contain: true,
+					pageDots: false,
+					freeScroll: true,
+					wrapAround: true
+				});
+
+				const bestSelletSlider = new Flickity('.bestSellerSlider', {
+					cellAlign: 'center',
+					contain: true,
+					pageDots: true,
+					prevNextButtons: false,
+					freeScroll: true,
+					wrapAround: true,
+					autoPlay: 2000,
+					pauseAutoPlayOnHover: true
+				});
+			} else {
+				setTimeout(initFlickity, 100);
+			}
+		}
+
+		// Start initialization
+		initFlickity();
 
 		const arrows = document.getElementsByClassName('flickity-prev-next-button');
 		for (let i = 0; i < arrows.length; i++) {
@@ -46,7 +68,7 @@
 
 <svelte:head>
 	<title>Home</title>
-	<link rel="preconnect" href="https://images.ctfassets.net" />
+	<link rel="preload" href={featuredImageMobile.url} as="image" type="image/webp" />
 </svelte:head>
 
 <div class="cover">
@@ -63,7 +85,7 @@
 		<p class="featuredCollectionsTitle">Live On The Bright Side</p>
 		<div class="collections">
 			{#if collections}
-				{#each collections as collection}
+				{#each collections.slice(0, 4) as collection}
 					<a href={`/collections/${collection.node.handle}`} class="card">
 						<img
 							class="collectionImage"
@@ -227,31 +249,74 @@
 		</div>
 	</div>
 </div>
+<hr class="bestSellerHr" />
+<div class="bestSellerSection">
+	<div class="bestSellerDesktop">
+		<div class="contentDiv">
+			{#each collections.slice(2, 5) as bestSeller}
+				<div class="bestSellerItem">
+					<a
+						href="/collections/{bestSeller.node.handle}"
+						class="link"
+						data-sveltekit-preload-data="hover"
+					>
+						<div
+							class="bestSellerImage"
+							style="background-image: url({bestSeller.node?.image?.url}&width=350);"
+						></div>
+						<div class="bestSellerLink">
+							<div class="bestSellerTitle">{bestSeller.node.title}</div>
+							<p class="bestSellerDescription">{bestSeller.node.description}</p>
+							<div class="bestSellerShopAll">Shop All</div>
+						</div>
+					</a>
+				</div>
+			{/each}
+		</div>
+	</div>
+	<div class="bestSellerMobile">
+		<div class="is-selected" style="display: none;"></div>
+		<div class="bestSellerSlider">
+			{#each collections.slice(2, 5) as bestSeller}
+				<div class="bestSellerItem">
+					<a
+						href="/collections/{bestSeller.node.handle}"
+						class="link"
+						data-sveltekit-preload-data="hover"
+					>
+						<img
+							src="{bestSeller.node?.image?.url}&width=400"
+							alt={bestSeller.title}
+							class="bestSellerImage"
+							width="400"
+							loading="lazy"
+						/>
+						<div class="bestSellerLink">
+							<div class="bestSellerTitle">{bestSeller.node.title}</div>
+							<p class="bestSellerDescription">{bestSeller.node.description}</p>
+							<div class="bestSellerShopAll">Shop All</div>
+						</div>
+					</a>
+				</div>
+			{/each}
+		</div>
+	</div>
+</div>
 <div class="bgImagesWithText">
-	<div class="firstImage">
-		<div class="content">
-			<h1 class="contentTitle">Summer Escape</h1>
-			<p class="contentText">Get ready for the perfect summer</p>
-			<div class="buttonMobile">
-				<a href="/collections/all" class="buttonText">Shop Now</a>
+	{#each bgCollectionItems[0].bgCollectionCollection.items as bgItem}
+		<div class="bgImage" style="background-image: url({bgItem.bgImage?.url});">
+			<div class="content">
+				<h1 class="contentTitle">{bgItem.title}</h1>
+				<p class="contentText">{bgItem.description}</p>
+				<div class="buttonMobile">
+					<a href={bgItem.url} class="buttonText">Shop Now</a>
+				</div>
+			</div>
+			<div class="button">
+				<a href={bgItem.url} class="buttonText" aria-label="Shop Now">Shop Now</a>
 			</div>
 		</div>
-		<div class="button">
-			<a href="/collections/all" class="buttonText" aria-label="Shop Now">Shop Now</a>
-		</div>
-	</div>
-	<div class="secondImage">
-		<div class="content">
-			<h1 class="contentTitle">Printed Perks</h1>
-			<p class="contentText">Get ready for the perfect summer</p>
-			<div class="buttonMobile">
-				<a href="/collections/all" class="buttonText">Shop Now</a>
-			</div>
-		</div>
-		<div class="button">
-			<a href="/collections/all" class="buttonText" aria-label="Shop Now">Shop Now</a>
-		</div>
-	</div>
+	{/each}
 </div>
 <div class="articlesBanner">
 	<div class="articleContent">
@@ -619,17 +684,7 @@
 		gap: 10px;
 		flex-wrap: wrap;
 	}
-	.firstImage {
-		background-image: url('/bg-1.webp');
-		background-size: cover;
-		min-height: 650px;
-		width: 49.5%;
-		background-repeat: no-repeat;
-		background-position: center;
-		position: relative;
-	}
-	.secondImage {
-		background-image: url('/bg-2.webp');
+	.bgImage {
 		background-size: cover;
 		min-height: 650px;
 		width: 49.5%;
@@ -925,6 +980,82 @@
 		line-height: 20px;
 		padding-top: 15px;
 	}
+	.bestSellerHr {
+		border-top: 1px solid #efc0c3;
+		margin-top: 0;
+		width: 100%;
+		max-width: 96%;
+		margin-bottom: 1.5rem;
+	}
+	.bestSellerSection {
+		max-width: 1440px;
+		margin: 0 auto;
+		padding: 0 15px;
+	}
+	.bestSellerDesktop {
+		display: block;
+	}
+	.bestSellerMobile {
+		display: none;
+	}
+	.contentDiv {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.bestSellerItem {
+		width: 31%;
+		margin: 10px;
+		transition: 0.4s linear margin-top;
+	}
+	.bestSellerItem .link {
+		outline: none;
+		color: #373735;
+		text-decoration: none;
+		background-color: transparent;
+		font-family: Poppins;
+	}
+	.bestSellerImage {
+		background-size: cover;
+		aspect-ratio: 2/2.65;
+		background-repeat: no-repeat;
+		background-position: center;
+		position: relative;
+	}
+	.bestSellerLink {
+		padding-top: 14px;
+		padding-left: 10px;
+	}
+	.bestSellerTitle {
+		font-size: 30px;
+		line-height: 42px;
+		margin: 0;
+		font-family: 'Poppins, serif';
+		background: white;
+		font-weight: 500;
+		color: #373735;
+	}
+	.bestSellerDescription {
+		font-size: 15px;
+		line-height: 22px;
+		margin: 0;
+		max-width: 300px;
+		position: relative;
+		background-color: #fff;
+		font-family: Poppins;
+		font-weight: 300;
+	}
+	.bestSellerShopAll {
+		margin-top: -40px;
+		font-size: 13px;
+		color: #373735;
+		line-height: 20px;
+		text-decoration: underline;
+		font-weight: 600;
+		transition: 0.4s linear margin-top;
+		font-family: Poppins;
+		position: relative;
+		z-index: -1;
+	}
 	@media screen and (min-width: 1440px) {
 		.content {
 			bottom: -2px;
@@ -937,10 +1068,7 @@
 		}
 	}
 	@media (max-width: 1024px) {
-		.firstImage {
-			width: 48%;
-		}
-		.secondImage {
+		.bgImage {
 			width: 48%;
 		}
 		.content {
@@ -963,11 +1091,7 @@
 	}
 
 	@media (min-width: 768px) {
-		.firstImage:hover > .content {
-			bottom: 50px;
-		}
-
-		.secondImage:hover > .content {
+		.bgImage:hover > .content {
 			bottom: 50px;
 		}
 		.card:hover > .collectionTitle {
@@ -981,13 +1105,16 @@
 			opacity: 1;
 			cursor: pointer;
 		}
+		.bestSellerItem:hover {
+			margin-top: -20px;
+		}
+		.bestSellerItem:hover .bestSellerShopAll {
+			margin-top: 5px;
+		}
 	}
 
 	@media (max-width: 768px) {
-		.firstImage {
-			width: 100%;
-		}
-		.secondImage {
+		.bgImage {
 			width: 100%;
 		}
 		.button {
@@ -1074,6 +1201,24 @@
 		.collectionsDiv button:hover {
 			background-color: #fff5f5;
 		}
+		.bestSellerDesktop {
+			display: none;
+		}
+		.bestSellerMobile {
+			display: block;
+		}
+		.bestSellerItem {
+			width: 70%;
+		}
+		.bestSellerShopAll {
+			margin-top: 0;
+		}
+		.bestSellerMobile .is-selected {
+			margin-top: -15px;
+		}
+		.bestSellerItem img {
+			max-width: 85%;
+		}
 	}
 	@media screen and (min-width: 400px) and (max-width: 500px) {
 		.coverText {
@@ -1093,16 +1238,10 @@
 		.card {
 			width: 34%;
 		}
-		.firstImage {
+		.bgImage {
 			background-size: contain;
 			background-position: unset;
 			min-height: 475px;
-		}
-		.secondImage {
-			background-size: contain;
-			background-position: unset;
-			min-height: 475px;
-			margin-top: 10px;
 		}
 		.content {
 			left: unset;

@@ -1,4 +1,10 @@
-import { getCollections, getHome, getProducts, getBlogs, getCollectionProducts } from '../utils';
+import {
+	getCollections,
+	getHome,
+	getBgImagesWithText,
+	getBlogs,
+	getCollectionProducts
+} from '../utils';
 export async function load({}) {
 	const collections = await getCollections();
 	const home = await getHome();
@@ -7,6 +13,13 @@ export async function load({}) {
 			homeCollection: { items }
 		}
 	} = home;
+	const bgImagesWithText = await getBgImagesWithText();
+	const {
+		data: {
+			bgImagesWithTextCollection: { items: bgCollectionItems }
+		}
+	} = bgImagesWithText;
+
 	const featuredImage = items[0].featuredImage;
 	const featuredImageMobile = items[0].featuredImageMobile;
 	const imageText = items[0].title;
@@ -55,6 +68,7 @@ export async function load({}) {
 		kidsCollectionProducts: kidsCollectionProducts.nodes,
 		articles,
 		imageText,
-		imageDescription
+		imageDescription,
+		bgCollectionItems
 	};
 }
