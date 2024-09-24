@@ -401,6 +401,7 @@
 																	searchResultsMainMobile.style.display = 'none';
 																	query = '';
 																	searchResults = [];
+																	openCustomSearchBar = false;
 																}}
 																class="categoryListItem">{item.title}</a
 															>
@@ -435,6 +436,7 @@
 															searchResultsDiv.style.display = 'none';
 															query = '';
 															searchResults = [];
+															openCustomSearchBar = false;
 														}}
 														data-sveltekit-preload-data="hover">{product.title}</a
 													>
