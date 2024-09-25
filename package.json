@@ -3,6 +3,7 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
+		"start": "vite",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
@@ -25,6 +26,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@sveltejs/adapter-node": "^5.2.4",
 		"amplify-adapter": "^0.1.2",
 		"axios": "^1.6.8",
 		"contentful": "^10.11.10",
