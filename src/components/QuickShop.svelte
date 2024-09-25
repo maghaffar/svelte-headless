@@ -237,6 +237,7 @@
 								}}>Add To Cart</button
 							>
 							<a
+								data-sveltekit-reload
 								class="seeFullDetails"
 								href="/products/{product?.handle}"
 								on:click={() => {
@@ -293,6 +294,7 @@
 						aria-label="Add To Cart">Add To Cart</button
 					>
 					<a
+						data-sveltekit-reload
 						class="seeFullDetails"
 						href="/products/{product?.handle}"
 						on:click={() => {

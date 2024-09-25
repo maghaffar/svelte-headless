@@ -438,7 +438,7 @@
 															searchResults = [];
 															openCustomSearchBar = false;
 														}}
-														data-sveltekit-preload-data="hover">{product.title}</a
+														data-sveltekit-reload>{product.title}</a
 													>
 													<p class="searchProductPrice">
 														${product.priceRange.maxVariantPrice.amount}
@@ -795,7 +795,7 @@
 														query = '';
 														searchResults = [];
 													}}
-													data-sveltekit-preload-data="hover">{product.title}</a
+													data-sveltekit-reload>{product.title}</a
 												>
 												<p class="searchProductPrice">
 													${product.priceRange.maxVariantPrice.amount}
@@ -880,7 +880,9 @@
 									</div>
 									<div class="productText">
 										<div class="titleCloseBtn">
-											<a href={`/products/${item.node.merchandise.product.handle}`}
+											<a
+												href={`/products/${item.node.merchandise.product.handle}`}
+												data-sveltekit-reload
 												><p class="prodTitle">{item.node.merchandise.product.title}</p></a
 											>
 											<div class="delProduct">

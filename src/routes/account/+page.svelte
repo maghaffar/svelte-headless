@@ -33,7 +33,7 @@
 			<div class="addressDiv">
 				<p class="title">Primary Address</p>
 				<div class="address">
-					<p>{customer?.displayName} <br /> United States</p>
+					<p>{customer?.displayName} <br /> {customer.defaultAddress.country || ''}</p>
 				</div>
 			</div>
 		</div>

@@ -166,7 +166,7 @@
 																			event.preventDefault();
 																		}
 																	}}
-																	data-sveltekit-preload-data="hover"
+																	data-sveltekit-reload
 																>
 																	<div class="mb2 responsive">
 																		<div class="responsiveItem primary">
@@ -257,7 +257,9 @@
 																</button>
 															</div>
 															<div class="title">
-																<a href="/products/{product.handle}">{product.title}</a>
+																<a href="/products/{product.handle}" data-sveltekit-reload
+																	>{product.title}</a
+																>
 															</div>
 														</div>
 													</div>

@@ -91,7 +91,7 @@
 			<a
 				href={`/products/${product.handle}`}
 				class="productCard"
-				data-sveltekit-preload-data="hover"
+				data-sveltekit-reload
 				on:click={(event) => {
 					if (
 						event.target.closest('.quickShopBtnDesktop') ||
@@ -175,7 +175,9 @@
 					</button>
 				</div>
 				<div class="priceTitle">
-					<a href={`/products/${product.handle}`} class="title">{product.title}</a>
+					<a href={`/products/${product.handle}`} class="title" data-sveltekit-reload
+						>{product.title}</a
+					>
 					<p class="price">${product.priceRange.maxVariantPrice.amount}</p>
 				</div>
 			</a>

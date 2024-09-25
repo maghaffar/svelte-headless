@@ -141,6 +141,7 @@ export async function getProduct(handle) {
 		product(handle: $handle) {
 		  id
 		  title
+		  handle
 		  description
 		  metafields(identifiers:[{namespace:"custom",key:"products"},{namespace:"custom",key:"collection"}]){
 			id
@@ -1484,6 +1485,9 @@ export async function getCustomer(accessToken) {
 		  displayName
 		  email
 		  numberOfOrders
+		  defaultAddress {
+			  country
+		  }
 		}
 	}
 	  `;

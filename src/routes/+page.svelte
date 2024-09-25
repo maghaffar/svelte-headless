@@ -142,7 +142,7 @@
 			{#if products}
 				{#each products as product}
 					<a
-						data-sveltekit-preload-data="hover"
+						data-sveltekit-reload
 						href={`/products/${product.handle}`}
 						class="product"
 						on:click={(event) => {

@@ -1,4 +1,5 @@
 <script>
+	import { browser } from '$app/environment';
 	import { selectedSize as selectedSizeStore } from './../../../stores/filter.js';
 	import { isCartUpdated } from './../../../stores/cart.js';
 	import { isQuickShopClosed } from '../../../stores/quickShop.js';
@@ -11,6 +12,7 @@
 
 	export let data;
 	$: product = data.product?.data.product;
+	$: yotpoId = Number(product.id.split('/').pop());
 	$: swatches = [{ data: { product: product } }, ...data.swatches];
 	$: selectedImage = product.featuredImage?.url;
 	$: collectionProducts = data.collection;
@@ -207,6 +209,13 @@
 
 <svelte:head>
 	<title>{product.title}</title>
+	<link rel="preconnect" href="https://cdn1.stamped.io" />
+	<script type="text/javascript" src="https://cdn1.stamped.io/files/widget.min.js"></script>
+	<script type="text/javascript">
+		//<![CDATA[
+		StampedFn.init({ apiKey: '744151be-0796-4097-820c-edc7a7f68a07', sId: '341070' });
+		// ]]>
+	</script>
 </svelte:head>
 
 <div class="container">
@@ -253,7 +262,7 @@
 						<a
 							href={`/products/${swatch.data.product?.handle}`}
 							on:click={clear}
-							data-sveltekit-preload-data="hover"
+							data-sveltekit-reload
 						>
 							<!-- svelte-ignore a11y-no-static-element-interactions -->
 							<div class="swatchDiv">
@@ -434,6 +443,7 @@
 										event.preventDefault();
 									}
 								}}
+								data-sveltekit-reload
 							>
 								<div class="slideImageDiv">
 									<img
@@ -515,6 +525,14 @@
 		</div>
 	</div>
 {/if}
+<div
+	id="stamped-main-widget"
+	data-product-id={yotpoId}
+	data-name={product.title}
+	data-url="/products/{product.handle}"
+	data-image-url={product.featuredImage.url}
+	data-description={product.description}
+></div>
 
 <style>
 	.container {
@@ -926,6 +944,10 @@
 	}
 	.slideImageDiv {
 		position: relative;
+	}
+	.yotpoReviews {
+		margin-top: 20px;
+		margin-bottom: 20px;
 	}
 	swiper-container::part(button-prev) {
 		color: black;
