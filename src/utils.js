@@ -359,6 +359,7 @@ export async function createCart() {
 
 	try {
 		const res = await axios.request(config);
+		console.log("CREATING CART=====>>>>>>>>>>>>", res, "\n", res.data)
 
 		return res.data;
 	} catch (error) {
