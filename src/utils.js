@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { PUBLIC_STOREFRONT_API_TOKEN } from '$env/static/public';
+const PUBLIC_STOREFRONT_API_TOKEN = import.meta.env.VITE_STOREFRONT_API_TOKEN;
 
 export async function getProducts() {
 	const query = ` {

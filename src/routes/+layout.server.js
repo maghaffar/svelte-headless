@@ -1,8 +1,7 @@
 import { getColumn, getMegaMenu, getCartLines, createCart, getCustomHeader } from '../utils';
 import contentful from 'contentful';
-import { PUBLIC_CONTENTFUL_ACCESS_TOKEN } from '$env/static/public';
-import { PUBLIC_CONTENTFUL_SPACE_ID } from '$env/static/public';
-
+const CONTENTFUL_ACCESS_TOKEN = import.meta.env.VITE_CONTENTFUL_ACCESS_TOKEN;
+const CONTENTFUL_SPACE_ID = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
 export async function load({ cookies }) {
 	let cartId = cookies.get('cart-id');
 	if (!cartId) {
@@ -18,8 +17,8 @@ export async function load({ cookies }) {
 		cookies.set('cart-id', cartid, { path: '/', maxAge: 86400 });
 	}
 	const client = contentful.createClient({
-		space: PUBLIC_CONTENTFUL_SPACE_ID,
-		accessToken: PUBLIC_CONTENTFUL_ACCESS_TOKEN
+		space: CONTENTFUL_SPACE_ID,
+		accessToken: CONTENTFUL_ACCESS_TOKEN
 	});
 	const menuItem = await getMegaMenu(client);
 	const items = menuItem.map(async (item) => {
