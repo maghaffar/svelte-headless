@@ -53,7 +53,6 @@
 	$: freeShippingDiff = (195 - cart?.cost?.subtotalAmount.amount).toFixed(2);
 	$: progressPercent = (cart?.cost?.subtotalAmount.amount / 195) * 100;
 	$: cartId = data.cartId;
-	$: console.log(cartId);
 	$: code = '';
 	$: appliedCodes = [];
 	$: discountedAmount = 0;
